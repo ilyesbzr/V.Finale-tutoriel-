@@ -490,12 +490,12 @@ export default function ServiceTable({
   };
 
   return (
-    <div>
+    <div className="bg-white">
       <div className="overflow-x-auto -mx-4 sm:mx-0">
         <div className="inline-block min-w-full align-middle">
-          <table className="table-modern min-w-full">
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
             <thead>
-              <tr>
+              <tr className="bg-gray-50">
                 <th className="px-6 py-4 text-left text-lg font-bold uppercase tracking-wider w-1/5 bg-gray-50">
                   <span className="text-base">{t('synthesis.service')}</span>
                 </th>
@@ -513,7 +513,7 @@ export default function ServiceTable({
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {getTableRows()}
               {getTotalRow()}
             </tbody>

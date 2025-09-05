@@ -2,7 +2,7 @@ import React from 'react';
 
 export function Card({ children, className = '' }) {
   return (
-    <div className={`card-modern animate-fade-in ${className}`}>
+    <div className={`bg-white rounded-xl shadow-lg border border-gray-100 animate-fade-in ${className}`}>
       {children}
     </div>
   );
@@ -10,7 +10,7 @@ export function Card({ children, className = '' }) {
 
 export function CardHeader({ title }) {
   return (
-    <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+    <div className="px-6 py-4 border-b border-gray-100 bg-white">
       <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
     </div>
   );
@@ -18,7 +18,7 @@ export function CardHeader({ title }) {
 
 export function CardContent({ children, className = '' }) {
   return (
-    <div className={`p-6 ${className}`}>
+    <div className={`p-6 bg-white ${className}`}>
       {children}
     </div>
   );

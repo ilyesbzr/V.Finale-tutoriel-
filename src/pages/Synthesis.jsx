@@ -355,7 +355,7 @@ function Synthesis() {
           </Card>
 
           {/* Détails par service */}
-          <div className="mt-20">
+          <div className="mt-8">
             <Card>
             <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
               <h3 className="text-2xl font-bold text-gray-900">{t('synthesis.serviceDetails')}</h3>
@@ -386,7 +386,7 @@ function Synthesis() {
                 </button>
               </div>
             </div>
-            <CardContent className="px-0 sm:px-4">
+            <CardContent className="px-0 sm:px-4 bg-white">
               <ServiceTable
                 data={mockData.departments}
                 showNet={false}
