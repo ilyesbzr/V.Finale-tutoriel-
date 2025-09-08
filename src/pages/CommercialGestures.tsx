@@ -409,6 +409,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
 .progress-fill-error {
   background: linear-gradient(90deg, var(--color-error-500), var(--color-error-400));
   transform: translate3d(0, 0, 0);
