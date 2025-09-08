@@ -1,4 +1,6 @@
-export const mockData = {
+import { MockData } from '../types';
+
+export const mockData: MockData = {
   departments: {
     mechanical: {
       hoursTarget: 739,

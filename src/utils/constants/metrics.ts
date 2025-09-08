@@ -2,15 +2,15 @@ export const DEPARTMENTS = {
   MECHANICAL: 'mechanical',
   QUICK_SERVICE: 'quickService',
   BODYWORK: 'bodywork'
-};
+} as const;
 
-export const DEPARTMENT_LABELS = {
+export const DEPARTMENT_LABELS: Record<string, string> = {
   [DEPARTMENTS.MECHANICAL]: 'Mécanique',
   [DEPARTMENTS.QUICK_SERVICE]: 'Service Rapide',
   [DEPARTMENTS.BODYWORK]: 'Carrosserie'
 };
 
-export const SITES = {
+export const SITES: Record<string, string> = {
   RO: 'Site 1',
   EU: 'Site 2',
   MTD: 'Site 3',

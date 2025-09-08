@@ -1,3 +1,5 @@
+import { ChartData } from '../types';
+
 // Configuration centralisée pour tous les graphiques
 export const CHART_COLORS = {
   service: ['#2563eb', '#16a34a', '#9333ea'],

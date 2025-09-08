@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 
-export function useOnboarding() {
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+interface UseOnboardingReturn {
+  showOnboarding: boolean;
+  isLoading: boolean;
+  completeOnboarding: () => void;
+  resetOnboarding: () => void;
+}
+
+export function useOnboarding(): UseOnboardingReturn {
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Vérifier si le tutoriel a déjà été complété
@@ -28,12 +35,13 @@ export function useOnboarding() {
     window.addEventListener('restartTutorial', handleRestartTutorial);
     return () => window.removeEventListener('restartTutorial', handleRestartTutorial);
   }, []);
-  const completeOnboarding = () => {
+
+  const completeOnboarding = (): void => {
     setShowOnboarding(false);
     localStorage.setItem('onboarding_completed', 'true');
   };
 
-  const resetOnboarding = () => {
+  const resetOnboarding = (): void => {
     localStorage.removeItem('onboarding_completed');
     setShowOnboarding(true);
   };

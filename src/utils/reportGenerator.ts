@@ -1,15 +1,18 @@
 import { format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { formatNumber, formatCurrency } from './formatters';
+import { MockData } from '../types';
+
+interface ReportData {
+  text: string;
+  html: string;
+  subject: string;
+}
 
 /**
  * Génère un rapport textuel moderne pour l'envoi par email
- * @param {Object} data - Données pour le rapport
- * @param {Date} date - Date du rapport
- * @param {string} site - Nom du site
- * @returns {string} - Rapport formaté en texte
  */
-export function generateTextReport(data, date, site) {
+export function generateTextReport(data: MockData, date: Date, site: string): string {
   const formattedDate = format(date, 'dd MMMM yyyy', { locale: fr });
   const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
   
@@ -36,7 +39,7 @@ export function generateTextReport(data, date, site) {
   const revenueProgress = Math.round((totalRevenue / totalRevenueTarget) * 100);
   
   // Fonction pour obtenir l'émoji de performance
-  const getPerformanceEmoji = (percentage) => {
+  const getPerformanceEmoji = (percentage: number): string => {
     if (percentage >= 90) return '🟢';
     if (percentage >= 75) return '🟡';
     return '🔴';
@@ -123,26 +126,9 @@ export function generateTextReport(data, date, site) {
 }
 
 /**
- * Génère une barre de progression textuelle
- * @param {number} percentage - Pourcentage (0-100)
- * @returns {string} - Barre de progression
- */
-function generateProgressBar(percentage) {
-  const barLength = 10;
-  const filledLength = Math.round((percentage / 100) * barLength);
-  const emptyLength = barLength - filledLength;
-  
-  return `[${'█'.repeat(filledLength)}${'░'.repeat(emptyLength)}]`;
-}
-
-/**
  * Génère un rapport HTML moderne pour l'envoi par email
- * @param {Object} data - Données pour le rapport
- * @param {Date} date - Date du rapport
- * @param {string} site - Nom du site
- * @returns {string} - Rapport formaté en HTML
  */
-export function generateHtmlReport(data, date, site) {
+export function generateHtmlReport(data: MockData, date: Date, site: string): string {
   const formattedDate = format(date, 'dd MMMM yyyy', { locale: fr });
   const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
   
@@ -511,14 +497,14 @@ export function generateHtmlReport(data, date, site) {
   const totalRevenuePerHour = totalHoursSold ? Math.round(totalRevenue / totalHoursSold) : 0;
   
   // Fonction pour obtenir la classe de performance
-  const getPerformanceClass = (percentage) => {
+  const getPerformanceClass = (percentage: number): string => {
     if (percentage >= 90) return 'performance-good';
     if (percentage >= 75) return 'performance-warning';
     return 'performance-danger';
   };
   
   // Fonction pour obtenir la classe de badge
-  const getBadgeClass = (percentage) => {
+  const getBadgeClass = (percentage: number): string => {
     if (percentage >= 90) return 'badge-success';
     if (percentage >= 75) return 'badge-warning';
     return 'badge-danger';
@@ -718,12 +704,8 @@ export function generateHtmlReport(data, date, site) {
 
 /**
  * Génère un rapport et le prépare pour l'envoi par email
- * @param {Object} data - Données pour le rapport
- * @param {Date} date - Date du rapport
- * @param {string} site - Nom du site
- * @returns {Object} - Objet contenant les versions texte et HTML du rapport
  */
-export async function generateEmailReport(data, date, site) {
+export async function generateEmailReport(data: MockData, date: Date, site: string): Promise<ReportData> {
   // Simulation optimisée pour la démonstration
   await new Promise(resolve => setTimeout(resolve, 300));
   
@@ -739,11 +721,8 @@ export async function generateEmailReport(data, date, site) {
 
 /**
  * Télécharge le rapport au format texte
- * @param {Object} data - Données pour le rapport
- * @param {Date} date - Date du rapport
- * @param {string} site - Nom du site
  */
-export function downloadTextReport(data, date, site) {
+export function downloadTextReport(data: MockData, date: Date, site: string): void {
   const textReport = generateTextReport(data, date, site);
   const blob = new Blob([textReport], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);

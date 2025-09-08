@@ -1,6 +1,7 @@
-import { utils } from 'xlsx';
+import { utils, WorkBook } from 'xlsx';
+import { MockData } from '../types';
 
-export function processMetricsSheet(jsonData) {
+export function processMetricsSheet(jsonData: any[]): { metrics: MockData['departments'] } {
   // Processeur optimisé pour la démonstration
   return {
     metrics: {
@@ -12,7 +13,9 @@ export function processMetricsSheet(jsonData) {
         revenueTarget: 162679,
         revenue: 32535,
         revenueProgress: 20,
-        revenuePerHour: 275
+        revenuePerHour: 275,
+        target: 739,
+        actual: 59
       },
       bodywork: {
         hoursTarget: 203,
@@ -22,7 +25,9 @@ export function processMetricsSheet(jsonData) {
         revenueTarget: 85000,
         revenue: 21250,
         revenueProgress: 25,
-        revenuePerHour: 425
+        revenuePerHour: 425,
+        target: 203,
+        actual: 32
       },
       quickService: {
         hoursTarget: 546,
@@ -32,16 +37,18 @@ export function processMetricsSheet(jsonData) {
         revenueTarget: 144569,
         revenue: 36142,
         revenueProgress: 25,
-        revenuePerHour: 265
+        revenuePerHour: 265,
+        target: 546,
+        actual: 109
       }
     }
   };
 }
 
-export function processExcelData(workbook) {
+export function processExcelData(workbook: WorkBook): MockData {
   const sheets = workbook.SheetNames;
-  const result = {
-    metrics: {
+  const result: MockData = {
+    departments: {
       mechanical: {
         hoursTarget: 0,
         hoursSold: 0,
@@ -50,7 +57,9 @@ export function processExcelData(workbook) {
         revenueTarget: 0,
         revenue: 0,
         revenueProgress: 0,
-        revenuePerHour: 0
+        revenuePerHour: 0,
+        target: 0,
+        actual: 0
       },
       bodywork: {
         hoursTarget: 0,
@@ -60,7 +69,9 @@ export function processExcelData(workbook) {
         revenueTarget: 0,
         revenue: 0,
         revenueProgress: 0,
-        revenuePerHour: 0
+        revenuePerHour: 0,
+        target: 0,
+        actual: 0
       },
       quickService: {
         hoursTarget: 0,
@@ -70,7 +81,9 @@ export function processExcelData(workbook) {
         revenueTarget: 0,
         revenue: 0,
         revenueProgress: 0,
-        revenuePerHour: 0
+        revenuePerHour: 0,
+        target: 0,
+        actual: 0
       }
     },
     videoCheck: {
@@ -107,6 +120,18 @@ export function processExcelData(workbook) {
         acSterilization: { count: 0 },
         discs: { count: 0 },
         additives: { count: 0 }
+      },
+      bodywork: {
+        tires: { target: 0, actual: 0, delta: 0 },
+        batteries: { target: 0, actual: 0, delta: 0 },
+        wipers: { target: 0, actual: 0, delta: 0 },
+        brakePads: { target: 0, actual: 0, delta: 0 },
+        shockAbsorbers: { target: 0, actual: 0, delta: 0 },
+        windshields: { target: 0, actual: 0, delta: 0 },
+        oilFilters: { count: 0 },
+        acSterilization: { count: 0 },
+        discs: { count: 0 },
+        additives: { count: 0 }
       }
     }
   };
@@ -117,7 +142,7 @@ export function processExcelData(workbook) {
 
     switch(sheetName) {
       case 'RESULTAT IMPORT AP.AC - MACRO':
-        processDailyMetrics(data, result.metrics);
+        processDailyMetrics(data, result.departments);
         break;
       case 'VIDEOCHECK _ ORV TOULOUSE':
         processVideoChecks(data, result.videoCheck);
@@ -132,17 +157,17 @@ export function processExcelData(workbook) {
   return result;
 }
 
-function processDailyMetrics(data, metrics) {
+function processDailyMetrics(data: any[], metrics: MockData['departments']): void {
   // Implémentation du traitement des métriques quotidiennes
   // Sera complété avec la logique exacte basée sur votre structure Excel
 }
 
-function processVideoChecks(data, videoCheck) {
+function processVideoChecks(data: any[], videoCheck: MockData['videoCheck']): void {
   // Implémentation du traitement des données VideoCheck
   // Sera complété avec la logique exacte basée sur votre structure Excel
 }
 
-function processSalesData(data, sales, sheetName) {
+function processSalesData(data: any[], sales: MockData['sales'], sheetName: string): void {
   // Implémentation du traitement des données de ventes
   // Sera complété avec la logique exacte basée sur votre structure Excel
 }

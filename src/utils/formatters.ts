@@ -1,5 +1,5 @@
-export function formatNumber(value) {
-  if (typeof value !== 'number') return value;
+export function formatNumber(value: number | string): string {
+  if (typeof value !== 'number') return String(value);
   
   return new Intl.NumberFormat('fr-FR', {
     maximumFractionDigits: 0,
@@ -8,7 +8,7 @@ export function formatNumber(value) {
   }).format(value);
 }
 
-export function formatCurrency(value) {
+export function formatCurrency(value: number): string {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
     currency: 'EUR',

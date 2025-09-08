@@ -26,9 +26,9 @@ const Rent = React.lazy(() => import('./pages/Rent'));
 const CommercialGestures = React.lazy(() => import('./pages/CommercialGestures'));
 const Parts = React.lazy(() => import('./pages/Parts'));
 
-function App() {
+function App(): JSX.Element {
   const { showOnboarding, completeOnboarding } = useOnboarding();
-    const zoomLevel = useZoom();
+  const zoomLevel = useZoom();
 
   return (
     <>

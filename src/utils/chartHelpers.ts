@@ -1,6 +1,7 @@
 import { CLIENT_TYPES } from '../data/chartConfigs';
+import { ChartData, Department } from '../types';
 
-export function generateClientTypeData(viewType) {
+export function generateClientTypeData(viewType: 'apv' | 'pr'): ChartData[] {
   const clients = CLIENT_TYPES[viewType];
   const total = clients.reduce((sum, client) => sum + client.base, 0);
   
@@ -12,7 +13,7 @@ export function generateClientTypeData(viewType) {
   }));
 }
 
-export function generateServiceData(data) {
+export function generateServiceData(data: Record<string, Department>): ChartData[] {
   const total = data.mechanical.revenue + data.quickService.revenue + data.bodywork.revenue;
   
   return [

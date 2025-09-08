@@ -4,7 +4,7 @@ import { getDaysInMonth, isWeekend, isSameDay, addDays, subDays, startOfMonth, e
 export { isWeekend };
 
 // Liste des jours fériés pour 2025
-const HOLIDAYS_2025 = [
+const HOLIDAYS_2025: Date[] = [
   new Date(2025, 0, 1),   // Premier de l'An
   new Date(2025, 3, 20),  // Dimanche de Pâques
   new Date(2025, 3, 21),  // Lundi de Pâques
@@ -19,7 +19,7 @@ const HOLIDAYS_2025 = [
   new Date(2025, 11, 25)  // Noël
 ];
 
-export function isHoliday(date) {
+export function isHoliday(date: Date): boolean {
   return HOLIDAYS_2025.some(holiday => 
     date.getFullYear() === holiday.getFullYear() &&
     date.getMonth() === holiday.getMonth() &&
@@ -27,8 +27,8 @@ export function isHoliday(date) {
   );
 }
 
-export function getHolidayName(date) {
-  const holidayNames = {
+export function getHolidayName(date: Date): string | null {
+  const holidayNames: Record<string, string> = {
     '01-01': 'Jour de l\'An',
     '05-01': 'Fête du Travail',
     '05-08': 'Victoire 1945',
@@ -40,10 +40,10 @@ export function getHolidayName(date) {
   };
 
   const key = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  return holidayNames[key];
+  return holidayNames[key] || null;
 }
 
-export function getMonthWorkingDays(date) {
+export function getMonthWorkingDays(date: Date): number {
   const totalDays = getDaysInMonth(date);
   let workingDays = 0;
   
@@ -60,7 +60,7 @@ export function getMonthWorkingDays(date) {
 }
 
 // Fonction pour obtenir le dernier jour ouvré avant une date
-export function getLastWorkingDay(date) {
+export function getLastWorkingDay(date: Date): Date {
   let currentDate = new Date(date);
   
   // Reculer d'un jour jusqu'à trouver un jour ouvré
@@ -72,7 +72,7 @@ export function getLastWorkingDay(date) {
 }
 
 // Fonction pour vérifier si c'est le premier jour ouvré du mois
-export function isFirstWorkingDayOfMonth(date) {
+export function isFirstWorkingDayOfMonth(date: Date): boolean {
   // Si ce n'est pas le premier mois de l'année, vérifier si c'est le premier jour ouvré
   if (date.getDate() > 1) {
     // Vérifier si tous les jours précédents sont des weekends ou des jours fériés
@@ -89,7 +89,7 @@ export function isFirstWorkingDayOfMonth(date) {
   return !isWeekend(date) && !isHoliday(date);
 }
 
-export function getElapsedWorkingDays(date) {
+export function getElapsedWorkingDays(date: Date): number {
   // Nouvelle logique pour les dates passées
   const today = new Date();
   const isPastDate = !isAfter(date, today) && !isSameDay(date, today);
@@ -147,7 +147,7 @@ export function getElapsedWorkingDays(date) {
   return workingDays;
 }
 
-export function getCurrentMonthProgress(date) {
+export function getCurrentMonthProgress(date: Date): number {
   // Nouvelle logique pour les dates passées
   const today = new Date();
   const isPastDate = !isAfter(date, today) && !isSameDay(date, today);
