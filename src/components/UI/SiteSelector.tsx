@@ -33,7 +33,7 @@ export default function SiteSelector({ selectedSite, onChange }: SiteSelectorPro
           id="site"
           value={selectedSite}
           onChange={(e) => onChange(e.target.value)}
-          className="appearance-none bg-white border-2 border-gray-200 rounded-xl px-4 py-3 pr-10 text-base font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md min-w-[140px]"
+          className="appearance-none bg-white border-2 border-gray-200 rounded-xl px-4 py-3 pr-10 text-base font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md min-w-[160px] max-w-[200px]"
         >
           {sites.map((site) => (
             <option key={site.id} value={site.id}>
