@@ -355,24 +355,32 @@ body {
   transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
   will-change: width;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .progress-fill-success {
   background: linear-gradient(90deg, var(--color-success-500), var(--color-success-400));
   transform: translateZ(0);
   will-change: width;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .progress-fill-warning {
   background: linear-gradient(90deg, var(--color-warning-500), var(--color-warning-400));
   transform: translateZ(0);
   will-change: width;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .progress-fill-error {
   background: linear-gradient(90deg, var(--color-error-500), var(--color-error-400));
   transform: translateZ(0);
   will-change: width;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Enhanced Table Styles */
