@@ -500,12 +500,12 @@ export default function Revenue(): JSX.Element {
         ) : activeTab === 'comparatifs' ? (
           // Onglet Comparatifs
           <div className="space-y-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-end items-center mb-6">
             <div className="flex items-center">
-              <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300">
+              <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300 min-w-[280px]">
                 <button
                   onClick={() => setComparatifsViewType('caapv')}
-                  className={`relative px-8 py-3 text-xs font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
+                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
                     comparatifsViewType === 'caapv'
                       ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105 ring-2 ring-blue-300 ring-opacity-50'
                       : 'text-gray-700 hover:text-blue-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
@@ -523,7 +523,7 @@ export default function Revenue(): JSX.Element {
                 </button>
                 <button
                   onClick={() => setComparatifsViewType('capr')}
-                  className={`relative px-8 py-3 text-xs font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
+                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
                     comparatifsViewType === 'capr'
                       ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105 ring-2 ring-purple-300 ring-opacity-50'
                       : 'text-gray-700 hover:text-purple-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'

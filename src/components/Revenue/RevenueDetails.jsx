@@ -102,10 +102,10 @@ export default function RevenueDetails({ data, viewType, setViewType }) {
           <h3 className="text-2xl font-semibold text-gray-900">
             {viewType === 'pr' ? 'Avancement du CA PR' : 'Avancement du CA APV'}
           </h3>
-          <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300">
+          <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300 min-w-[280px]">
             <button
               onClick={() => setViewType('canet')}
-              className={`relative px-8 py-3 text-xs font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${viewType === 'canet'
+              className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${viewType === 'canet'
                 ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105 ring-2 ring-blue-300 ring-opacity-50'
                 : 'text-gray-700 hover:text-blue-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
                 }`}
@@ -122,7 +122,7 @@ export default function RevenueDetails({ data, viewType, setViewType }) {
             </button>
             <button
               onClick={() => setViewType('pr')}
-              className={`relative px-8 py-3 text-xs font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${viewType === 'pr'
+              className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${viewType === 'pr'
                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105 ring-2 ring-purple-300 ring-opacity-50'
                 : 'text-gray-700 hover:text-purple-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
                 }`}
