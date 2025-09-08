@@ -1,803 +1,1266 @@
-import React, { useState } from 'react';
-import DateSelector from '../components/UI/DateSelector';
-import SiteSelector from '../components/UI/SiteSelector';
-import { Card, CardHeader, CardContent } from '../components/Dashboard/Card';
-import { formatNumber } from '../utils/formatters';
-import InvoiceBreakdownModal from '../components/UI/InvoiceBreakdownModal';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
-import { useTranslation } from 'react-i18next';
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-interface BreakdownData {
-  client: number;
-  warranty: number;
-  transfer: number;
+@import './styles/print.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* CSS Variables for Design System */
+:root {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  --color-secondary-50: #f0fdf4;
+  --color-secondary-100: #dcfce7;
+  --color-secondary-200: #bbf7d0;
+  --color-secondary-300: #86efac;
+  --color-secondary-400: #4ade80;
+  --color-secondary-500: #22c55e;
+  --color-secondary-600: #16a34a;
+  --color-secondary-700: #15803d;
+  --color-secondary-800: #166534;
+  --color-secondary-900: #14532d;
+
+  --color-accent-50: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-200: #bfdbfe;
+  --color-accent-300: #93c5fd;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
+  --color-accent-800: #1e40af;
+  --color-accent-900: #1e3a8a;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 20px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
 }
 
-interface DepartmentData {
-  total: number;
-  breakdown: BreakdownData;
-  totalPR: number;
-  breakdownPR: BreakdownData;
+/* Base styles */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-interface DataStructure {
-  daily: {
-    mechanical: DepartmentData;
-    quickService: DepartmentData;
-    bodywork: DepartmentData;
-  };
-  monthly: {
-    mechanical: DepartmentData;
-    quickService: DepartmentData;
-    bodywork: DepartmentData;
-  };
+body {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
-interface WorkshopRatesData {
-  name: string;
-  [year: number]: number;
+/* Animations globales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-export default function Entries(): JSX.Element {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSite, setSelectedSite] = useState<string>('RO');
-  const [activeTab, setActiveTab] = useState<'billing' | 'workshop-rates'>('billing');
-  const [billingViewType, setBillingViewType] = useState<'apv' | 'pr'>('apv');
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [selectedData, setSelectedData] = useState<BreakdownData | null>(null);
-  const [modalTitle, setModalTitle] = useState<string>('');
-  const [selectedYear, setSelectedYear] = useState<number>(2025);
-  const { t } = useTranslation();
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
 
-  // Données simulées - à remplacer par les vraies données de l'API
-  const data: DataStructure = {
-    daily: {
-      mechanical: {
-        total: 38,
-        breakdown: { client: 25, warranty: 8, transfer: 5 },
-        totalPR: 28,
-        breakdownPR: { client: 18, warranty: 6, transfer: 4 }
-      },
-      quickService: {
-        total: 28,
-        breakdown: { client: 20, warranty: 5, transfer: 3 },
-        totalPR: 22,
-        breakdownPR: { client: 15, warranty: 4, transfer: 3 }
-      },
-      bodywork: {
-        total: 12,
-        breakdown: { client: 8, warranty: 2, transfer: 2 },
-        totalPR: 8,
-        breakdownPR: { client: 5, warranty: 2, transfer: 1 }
-      }
-    },
-    monthly: {
-      mechanical: {
-        total: 720,
-        breakdown: { client: 500, warranty: 150, transfer: 70 },
-        totalPR: 580,
-        breakdownPR: { client: 400, warranty: 120, transfer: 60 }
-      },
-      quickService: {
-        total: 580,
-        breakdown: { client: 400, warranty: 120, transfer: 60 },
-        totalPR: 465,
-        breakdownPR: { client: 320, warranty: 95, transfer: 50 }
-      },
-      bodywork: {
-        total: 245,
-        breakdown: { client: 180, warranty: 45, transfer: 20 },
-        totalPR: 196,
-        breakdownPR: { client: 140, warranty: 36, transfer: 20 }
-      }
-    }
-  };
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-  // Calcul des totaux
-  const dailyTotal = billingViewType === 'apv' 
-    ? data.daily.mechanical.total + data.daily.quickService.total + data.daily.bodywork.total
-    : data.daily.mechanical.totalPR + data.daily.quickService.totalPR + data.daily.bodywork.totalPR;
-  const monthlyTotal = billingViewType === 'apv'
-    ? data.monthly.mechanical.total + data.monthly.quickService.total + data.monthly.bodywork.total
-    : data.monthly.mechanical.totalPR + data.monthly.quickService.totalPR + data.monthly.bodywork.totalPR;
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
 
-  const handleShowBreakdown = (type: 'daily' | 'monthly', service: 'mechanical' | 'quickService' | 'bodywork'): void => {
-    const breakdown = billingViewType === 'apv' 
-      ? data[type][service].breakdown 
-      : data[type][service].breakdownPR;
-    setSelectedData(breakdown);
-    setModalTitle(`${t('common.details')} ${type === 'daily' ? t('synthesis.j1') : t('common.month')} - ${
-      service === 'mechanical' ? t('dashboard.mechanical') :
-      service === 'quickService' ? t('dashboard.quickService') :
-      t('dashboard.bodywork')
-    }`);
-    setShowModal(true);
-  };
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-  const handleShowTotalBreakdown = (type: 'daily' | 'monthly'): void => {
-    const totalBreakdown: BreakdownData = billingViewType === 'apv' ? {
-      client: Object.values(data[type]).reduce((sum, service) => sum + service.breakdown.client, 0),
-      warranty: Object.values(data[type]).reduce((sum, service) => sum + service.breakdown.warranty, 0),
-      transfer: Object.values(data[type]).reduce((sum, service) => sum + service.breakdown.transfer, 0)
-    } : {
-      client: Object.values(data[type]).reduce((sum, service) => sum + service.breakdownPR.client, 0),
-      warranty: Object.values(data[type]).reduce((sum, service) => sum + service.breakdownPR.warranty, 0),
-      transfer: Object.values(data[type]).reduce((sum, service) => sum + service.breakdownPR.transfer, 0)
-    };
-    setSelectedData(totalBreakdown);
-    setModalTitle(`${t('common.details')} ${type === 'daily' ? t('synthesis.j1') : t('common.month')} - ${t('common.total')}`);
-    setShowModal(true);
-  };
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
 
-  // Fonction pour obtenir le facteur d'année (évolution dans le temps)
-  const getYearFactor = (year: number): number => {
-    const baseYear = 2025;
-    const yearDiff = year - baseYear;
-    // Simulation d'une croissance de 2% par an pour les taux atelier
-    return Math.pow(1.02, yearDiff);
-  };
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-  // Fonction pour obtenir les données des taux atelier
-  const getWorkshopRatesData = (mechanicType: string): WorkshopRatesData[] => {
-    const baseData: Record<string, { base: number; variation: number }> = {
-      'Mécanique T1': { base: 200, variation: 0.08 },
-      'Mécanique T2': { base: 6, variation: 0.12 },
-      'Mécanique T3': { base: 10, variation: 0.15 }
-    };
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
 
-    const selectedData = baseData[mechanicType];
-    
-    return [
-      {
-        name: mechanicType,
-        [selectedYear - 2]: Math.round(selectedData.base * getYearFactor(selectedYear - 2)),
-        [selectedYear - 1]: Math.round(selectedData.base * getYearFactor(selectedYear - 1)),
-        [selectedYear]: Math.round(selectedData.base * getYearFactor(selectedYear))
-      }
-    ];
-  };
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
-  return (
-    <div className="p-4 sm:p-6">
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-        <DateSelector 
-          selectedDate={selectedDate}
-          onChange={setSelectedDate}
-        />
-        <SiteSelector
-          selectedSite={selectedSite}
-          onChange={setSelectedSite}
-        />
-      </div>
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
 
-      {/* Onglets */}
-      <div className="mb-8 overflow-x-auto">
-        <div className="flex justify-center">
-          <nav className="inline-flex bg-gray-100 rounded-xl p-1 shadow-sm border border-gray-200">
-            <button
-              onClick={() => setActiveTab('billing')}
-              className={`relative px-10 py-5 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out transform overflow-hidden ${
-                activeTab === 'billing'
-                  ? 'bg-white text-blue-700 shadow-md scale-105 ring-2 ring-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:scale-102'
-              }`}
-            >
-              <span className="relative z-10">
-                <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </span>
-              <span className="text-xl font-semibold">Facturation</span>
-              {activeTab === 'billing' && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-t-full"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('workshop-rates')}
-              className={`relative px-10 py-5 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out transform overflow-hidden ${
-                activeTab === 'workshop-rates'
-                  ? 'bg-white text-blue-700 shadow-md scale-105 ring-2 ring-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:scale-102'
-              }`}
-            >
-              <span className="relative z-10">
-                <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-              </span>
-              <span className="text-xl font-semibold">Taux atelier</span>
-              {activeTab === 'workshop-rates' && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-t-full"></div>
-              )}
-            </button>
-          </nav>
-        </div>
-      </div>
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
 
-      {activeTab === 'billing' ? (
-        <div className="space-y-6">
-        {/* Facturation J-1 */}
-        <Card>
-          <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-            <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-semibold text-gray-900">
-                {billingViewType === 'apv' ? 'Facturation J-1 APV' : 'Facturation J-1 PR'}
-              </h3>
-              <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300 min-w-[280px]">
-                <button
-                  onClick={() => setBillingViewType('apv')}
-                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
-                    billingViewType === 'apv'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105 ring-2 ring-blue-300 ring-opacity-50'
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <span className="text-base font-bold">APV</span>
-                  </span>
-                  {billingViewType === 'apv' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 rounded-xl opacity-20 animate-pulse"></div>
-                  )}
-                </button>
-                <button
-                  onClick={() => setBillingViewType('pr')}
-                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
-                    billingViewType === 'pr'
-                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105 ring-2 ring-purple-300 ring-opacity-50'
-                      : 'text-gray-700 hover:text-purple-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    <span className="text-base font-bold">PR</span>
-                  </span>
-                  {billingViewType === 'pr' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-purple-500 rounded-xl opacity-20 animate-pulse"></div>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
-              {/* Total */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowTotalBreakdown('daily')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-indigo-600 mb-2">
-                    {dailyTotal}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('common.total')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '85' : '68'}</p>
-                </div>
-              </div>
+@keyframes pulse {
 
-              {/* Mécanique */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowBreakdown('daily', 'mechanical')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
-                    {billingViewType === 'apv' ? data.daily.mechanical.total : data.daily.mechanical.totalPR}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('dashboard.mechanical')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '42' : '32'}</p>
-                </div>
-              </div>
+  0%,
+  100% {
+    opacity: 1;
+  }
 
-              {/* Service Rapide */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowBreakdown('daily', 'quickService')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-green-600 mb-2">
-                    {billingViewType === 'apv' ? data.daily.quickService.total : data.daily.quickService.totalPR}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('dashboard.quickService')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '31' : '24'}</p>
-                </div>
-              </div>
+  50% {
+    opacity: 0.5;
+  }
+}
 
-              {/* Carrosserie */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowBreakdown('daily', 'bodywork')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-purple-600 mb-2">
-                    {billingViewType === 'apv' ? data.daily.bodywork.total : data.daily.bodywork.totalPR}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('dashboard.bodywork')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '12' : '9'}</p>
-                </div>
-              </div>
+@keyframes bounce {
 
-              {/* Nombre d'avoirs */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-orange-600 mb-2">
-                    3
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">Avoirs</h3>
-                  <p className="text-sm text-gray-500">émis</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: 5</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
 
-        {/* Facturation du mois */}
-        <Card>
-          <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-            <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-semibold text-gray-900">
-                {billingViewType === 'apv' ? 'Facturation du mois APV' : 'Facturation du mois PR'}
-              </h3>
-              <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300 min-w-[280px]">
-                <button
-                  onClick={() => setBillingViewType('apv')}
-                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
-                    billingViewType === 'apv'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105 ring-2 ring-blue-300 ring-opacity-50'
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <span className="text-base font-bold">APV</span>
-                  </span>
-                  {billingViewType === 'apv' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 rounded-xl opacity-20 animate-pulse"></div>
-                  )}
-                </button>
-                <button
-                  onClick={() => setBillingViewType('pr')}
-                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
-                    billingViewType === 'pr'
-                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105 ring-2 ring-purple-300 ring-opacity-50'
-                      : 'text-gray-700 hover:text-purple-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    <span className="text-base font-bold">PR</span>
-                  </span>
-                  {billingViewType === 'pr' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-purple-500 rounded-xl opacity-20 animate-pulse"></div>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
-              {/* Total */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowTotalBreakdown('monthly')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-indigo-600 mb-2">
-                    {formatNumber(monthlyTotal)}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('common.total')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '1620' : '1295'}</p>
-                </div>
-              </div>
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
 
-              {/* Mécanique */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowBreakdown('monthly', 'mechanical')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
-                    {formatNumber(billingViewType === 'apv' ? data.monthly.mechanical.total : data.monthly.mechanical.totalPR)}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('dashboard.mechanical')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '780' : '625'}</p>
-                </div>
-              </div>
+@keyframes float {
 
-              {/* Service Rapide */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowBreakdown('monthly', 'quickService')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-green-600 mb-2">
-                    {formatNumber(billingViewType === 'apv' ? data.monthly.quickService.total : data.monthly.quickService.totalPR)}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('dashboard.quickService')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '620' : '495'}</p>
-                </div>
-              </div>
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
 
-              {/* Carrosserie */}
-              <div 
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleShowBreakdown('monthly', 'bodywork')}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-purple-600 mb-2">
-                    {formatNumber(billingViewType === 'apv' ? data.monthly.bodywork.total : data.monthly.bodywork.totalPR)}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">{t('dashboard.bodywork')}</h3>
-                  <p className="text-sm text-gray-500">{t('entries.invoices')}</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '220' : '175'}</p>
-                </div>
-              </div>
+  50% {
+    transform: translateY(-10px);
+  }
+}
 
-              {/* Nombre d'avoirs */}
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex flex-col items-center">
-                  <div className="text-4xl font-bold text-orange-600 mb-2">
-                    {billingViewType === 'apv' ? '15' : '12'}
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900">Avoirs</h3>
-                  <p className="text-sm text-gray-500">émis</p>
-                  <p className="text-xs text-gray-400 mt-1">vs N-1: {billingViewType === 'apv' ? '18' : '14'}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        </div>
-      ) : (
-        // Onglet Taux atelier
-        <div className="space-y-6">
-          {/* Contrôles */}
-          <Card>
-            <div className="px-4 py-3 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-semibold text-gray-900">Taux atelier - Comparaison annuelle</h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-gray-700">Année</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-blue-900 rounded"></div>
-                      <span className="text-sm">{selectedYear - 2}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-blue-600 rounded"></div>
-                      <span className="text-sm">{selectedYear - 1}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-blue-400 rounded"></div>
-                      <span className="text-sm">{selectedYear}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
+@keyframes glow {
 
-          {/* Répartition des taux pour 2025 */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="bg-white border-2 border-gray-300 rounded-lg p-6 max-w-sm mx-auto">
-                <h3 className="text-lg font-semibold text-gray-900 text-center mb-4">
-                  Répartition des taux
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 bg-red-500 rounded mr-3 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">T1</span>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">T1 :</span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">
-                      {getWorkshopRatesData('Mécanique T1')[0][selectedYear]}K€
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 bg-gray-600 rounded mr-3 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">T2</span>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">T2 :</span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">
-                      {getWorkshopRatesData('Mécanique T2')[0][selectedYear]}K€
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-6 h-6 bg-gray-400 rounded mr-3 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">T3</span>
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">T3 :</span>
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">
-                      {getWorkshopRatesData('Mécanique T3')[0][selectedYear]}K€
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          {/* Graphiques des taux atelier */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Mécanique T1 */}
-            <Card>
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Mécanique T1</h3>
-              </div>
-              <CardContent>
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={getWorkshopRatesData('Mécanique T1')}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                      barGap={10}
-                      barCategoryGap={40}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="name" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <YAxis 
-                        tickFormatter={(value: number) => `${value}K€`}
-                        domain={[0, 'auto']}
-                      />
-                      <Tooltip 
-                        formatter={(value: number, name: string) => [`${value}K€`, name]}
-                        labelFormatter={(label: string) => label}
-                      />
-                      <Bar dataKey={selectedYear - 2} name={`${selectedYear - 2}`} fill="#1e3a8a" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear - 2}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#1e3a8a', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                      <Bar dataKey={selectedYear - 1} name={`${selectedYear - 1}`} fill="#3b82f6" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear - 1}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#3b82f6', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                      <Bar dataKey={selectedYear} name={`${selectedYear}`} fill="#93c5fd" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#93c5fd', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {/* Valeurs détaillées pour Mécanique T1 */}
-                <div className="mt-6 grid grid-cols-1 gap-4">
-                  {getWorkshopRatesData('Mécanique T1').map((item, index) => (
-                    <div key={item.name} className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3 text-center">{item.name}</h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear - 2}:</span>
-                          <span className="text-sm font-semibold text-blue-900">{item[selectedYear - 2]}K€</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear - 1}:</span>
-                          <span className="text-sm font-semibold text-blue-600">{item[selectedYear - 1]}K€</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear}:</span>
-                          <span className="text-sm font-semibold text-blue-400">{item[selectedYear]}K€</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
 
-            {/* Mécanique T2 */}
-            <Card>
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Mécanique T2</h3>
-              </div>
-              <CardContent>
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={getWorkshopRatesData('Mécanique T2')}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                      barGap={10}
-                      barCategoryGap={40}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="name" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <YAxis 
-                        tickFormatter={(value: number) => `${value}K€`}
-                        domain={[0, 'auto']}
-                      />
-                      <Tooltip 
-                        formatter={(value: number, name: string) => [`${value}K€`, name]}
-                        labelFormatter={(label: string) => label}
-                      />
-                      <Bar dataKey={selectedYear - 2} name={`${selectedYear - 2}`} fill="#1e3a8a" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear - 2}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#1e3a8a', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                      <Bar dataKey={selectedYear - 1} name={`${selectedYear - 1}`} fill="#3b82f6" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear - 1}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#3b82f6', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                      <Bar dataKey={selectedYear} name={`${selectedYear}`} fill="#93c5fd" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#93c5fd', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {/* Valeurs détaillées pour Mécanique T2 */}
-                <div className="mt-6 grid grid-cols-1 gap-4">
-                  {getWorkshopRatesData('Mécanique T2').map((item, index) => (
-                    <div key={item.name} className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3 text-center">{item.name}</h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear - 2}:</span>
-                          <span className="text-sm font-semibold text-blue-900">{item[selectedYear - 2]}K€</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear - 1}:</span>
-                          <span className="text-sm font-semibold text-blue-600">{item[selectedYear - 1]}K€</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear}:</span>
-                          <span className="text-sm font-semibold text-blue-400">{item[selectedYear]}K€</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
 
-            {/* Mécanique T3 */}
-            <Card>
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Mécanique T3</h3>
-              </div>
-              <CardContent>
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={getWorkshopRatesData('Mécanique T3')}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                      barGap={10}
-                      barCategoryGap={40}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="name" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <YAxis 
-                        tickFormatter={(value: number) => `${value}K€`}
-                        domain={[0, 'auto']}
-                      />
-                      <Tooltip 
-                        formatter={(value: number, name: string) => [`${value}K€`, name]}
-                        labelFormatter={(label: string) => label}
-                      />
-                      <Bar dataKey={selectedYear - 2} name={`${selectedYear - 2}`} fill="#1e3a8a" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear - 2}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#1e3a8a', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                      <Bar dataKey={selectedYear - 1} name={`${selectedYear - 1}`} fill="#3b82f6" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear - 1}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#3b82f6', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                      <Bar dataKey={selectedYear} name={`${selectedYear}`} fill="#93c5fd" barSize={60}>
-                        <LabelList 
-                          dataKey={selectedYear}
-                          position="top"
-                          formatter={(value: number) => `${value}K€`}
-                          style={{ fontSize: '12px', fill: '#93c5fd', fontWeight: 'bold' }}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {/* Valeurs détaillées pour Mécanique T3 */}
-                <div className="mt-6 grid grid-cols-1 gap-4">
-                  {getWorkshopRatesData('Mécanique T3').map((item, index) => (
-                    <div key={item.name} className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3 text-center">{item.name}</h3>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear - 2}:</span>
-                          <span className="text-sm font-semibold text-blue-900">{item[selectedYear - 2]}K€</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear - 1}:</span>
-                          <span className="text-sm font-semibold text-blue-600">{item[selectedYear - 1]}K€</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-600">{selectedYear}:</span>
-                          <span className="text-sm font-semibold text-blue-400">{item[selectedYear]}K€</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      )}
+/* Classes d'animation réutilisables */
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-      <InvoiceBreakdownModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        data={selectedData}
-        title={modalTitle}
-      />
-    </div>
-  );
+.animate-slide-in-right {
+  animation: slideInFromRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-in-top {
+  animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200px 100%;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Enhanced Card Styles */
+.card-modern {
+  background: rgb(255, 255, 255);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2xl);
+  border-color: #3b82f6;
+}
+
+/* Enhanced Button Styles */
+.btn-modern {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-modern:hover::before {
+  left: 100%;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-modern:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Input Styles */
+.input-modern {
+  border-radius: var(--border-radius-lg);
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.input-modern:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: rgba(255, 255, 255, 1);
+}
+
+/* Enhanced Progress Bars */
+.progress-modern {
+  background: linear-gradient(90deg, #f1f5f9, #e2e8f0);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.progress-fill-modern {
+  border-radius: 9999px;
+  position: relative;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-400));
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.progress-fill-success {
+  background: linear-gradient(90deg, var(--color-success-500), var(--color-success-400));
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.progress-fill-warning {
+  background: linear-gradient(90deg, var(--color-warning-500), var(--color-warning-400));
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.progress-fill-error {
+  background: linear-gradient(90deg, var(--color-error-500), var(--color-error-400));
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Enhanced Table Styles */
+.table-modern {
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: white;
+}
+
+.table-modern thead {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.table-modern th {
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 16px 20px;
+}
+
+.table-modern td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.table-modern tbody tr:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.02), rgba(59, 130, 246, 0.05));
+}
+
+/* Enhanced Sidebar */
+.sidebar-modern {
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e293b 100%);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-item {
+  position: relative;
+  margin: 4px 8px;
+  border-radius: var(--border-radius-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.sidebar-item:hover::before {
+  left: 100%;
+}
+
+.sidebar-item:hover {
+  transform: translateX(4px);
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--color-primary-400);
+}
+
+.sidebar-item.active {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  box-shadow: var(--shadow-lg);
+  transform: translateX(4px);
+}
+
+/* Enhanced Modal Styles */
+.modal-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+/* Enhanced Tooltip Styles */
+.tooltip-modern {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 12px 16px;
+  max-width: 280px;
+}
+
+/* Enhanced Chart Container */
+.chart-container {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Header */
+.header-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Navigation Tabs */
+.nav-tabs-modern {
+  background: rgba(241, 245, 249, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl);
+  padding: 6px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-tab-modern {
+  position: relative;
+  border-radius: var(--border-radius-lg);
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.nav-tab-modern.active {
+  background: white;
+  box-shadow: var(--shadow-md);
+  color: var(--color-primary-700);
+}
+
+.nav-tab-modern.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-accent-500));
+  border-radius: 2px;
+}
+
+.nav-tab-modern:not(.active):hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-1px);
+}
+
+/* Enhanced Metric Cards */
+.metric-card-modern {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-primary-500);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.metric-card-modern:hover::before {
+  opacity: 1;
+}
+
+
+/* Enhanced Status Indicators */
+.status-success {
+  background: linear-gradient(135deg, var(--color-success-500), var(--color-success-400));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+.status-warning {
+  background: linear-gradient(135deg, var(--color-warning-500), var(--color-warning-400));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+.status-error {
+  background: linear-gradient(135deg, var(--color-error-500), var(--color-error-400));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Loading States */
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--border-radius-md);
+}
+
+.loading-spinner-modern {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.1);
+  border-top: 3px solid var(--color-primary-500);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: var(--shadow-md);
+}
+
+/* Transitions fluides */
+.page-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Menu Items */
+.menu-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.menu-item:hover {
+  transform: translateX(4px) scale(1.02);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 60%;
+  background: linear-gradient(180deg, var(--color-primary-500), var(--color-accent-500));
+  border-radius: 0 4px 4px 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-item.active::after {
+  width: 4px;
+}
+
+.button-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button-hover:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Enhanced Form Elements */
+.form-group-modern {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.form-label-modern {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  background: white;
+  padding: 0 8px;
+  border-radius: 4px;
+}
+
+.form-input-modern:focus+.form-label-modern,
+.form-input-modern:not(:placeholder-shown)+.form-label-modern {
+  transform: translateY(-32px) scale(0.85);
+  color: var(--color-primary-600);
+  font-weight: 600;
+}
+
+/* Enhanced Dropdown */
+.dropdown-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.dropdown-item-modern {
+  padding: 12px 20px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 3px solid transparent;
+}
+
+.dropdown-item-modern:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  border-left-color: var(--color-primary-500);
+  transform: translateX(4px);
+}
+
+/* Enhanced Calendar */
+.calendar-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.calendar-day {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--border-radius-md);
+  position: relative;
+}
+
+.calendar-day:hover {
+  transform: scale(1.1);
+  background: var(--color-primary-100);
+  box-shadow: var(--shadow-md);
+}
+
+.calendar-day.selected {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Enhanced Chat Widget */
+.chat-widget-modern {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  border-radius: 50%;
+  box-shadow: var(--shadow-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-widget-modern::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: spin 3s linear infinite;
+}
+
+.chat-widget-modern:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-2xl);
+}
+
+.chat-window-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+}
+
+/* Enhanced Notification */
+.notification-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  border-left: 4px solid var(--color-primary-500);
+}
+
+/* Enhanced Badge */
+.badge-modern {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge-modern:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+/* Enhanced Search */
+.search-modern {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--border-radius-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-modern:focus-within {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: white;
+}
+
+/* Enhanced Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-primary-400), var(--color-primary-500));
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-primary-500), var(--color-primary-600));
+}
+
+/* Enhanced Focus States */
+.focus-modern:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-primary-500);
+}
+
+/* Enhanced Grid Layout */
+.grid-modern {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+}
+
+/* Enhanced Typography */
+.heading-modern {
+  background: linear-gradient(135deg, #1e293b, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-accent-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation du loader */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced Utility Classes */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.backdrop-blur-xs {
+  backdrop-filter: blur(2px);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+}
+
+/* Enhanced Interactive Elements */
+.interactive {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive:hover {
+  transform: translateY(-1px);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* Enhanced Dividers */
+.divider-modern {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(226, 232, 240, 0.8), transparent);
+  margin: 24px 0;
+}
+
+.divider-gradient {
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-accent-500), var(--color-secondary-500));
+  border-radius: 1px;
+  margin: 16px 0;
+}
+
+/* Print-specific display utilities */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .print-only {
+    display: block;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Styles d'impression */
+@media print {
+
+  /* Configuration de base */
+  @page {
+    size: landscape;
+    margin: 0.5cm;
+  }
+
+  /* Styles généraux pour l'impression */
+  body {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    background: white !important;
+    color: black !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 8pt !important;
+  }
+
+  /* Cacher les éléments non imprimables */
+  .no-print,
+  button:not(.print-button),
+  nav,
+  header {
+    display: none !important;
+  }
+
+  /* Styles pour les tableaux */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    break-inside: auto !important;
+    font-size: 8pt !important;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  td,
+  th {
+    padding: 2px 4px !important;
+    border: 1px solid #e2e8f0 !important;
+    white-space: nowrap !important;
+  }
+
+  th {
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    color: #4a5568 !important;
+    background-color: #f7fafc !important;
+  }
+
+  /* Styles pour les titres */
+  h1 {
+    font-size: 14pt !important;
+    margin-bottom: 0.3cm !important;
+    break-after: avoid !important;
+  }
+
+  h2 {
+    font-size: 12pt !important;
+    margin-top: 0.3cm !important;
+    margin-bottom: 0.2cm !important;
+    break-after: avoid !important;
+  }
+
+  h3 {
+    font-size: 10pt !important;
+    margin-top: 0.2cm !important;
+    margin-bottom: 0.1cm !important;
+    break-after: avoid !important;
+  }
+
+  /* Forcer les sauts de page appropriés */
+  .print-page-break {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+
+  /* Empêcher les sauts de page indésirables */
+  .print-keep-together {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Styles spécifiques pour PrintableSummary */
+  .print-summary {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Grille pour Crescendo */
+  .grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.3cm !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ajustements de mise en page */
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  .print\:m-0 {
+    margin: 0 !important;
+  }
+
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  /* Assurer que le contenu est visible */
+  .print\:block {
+    display: block !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Styles pour la barre de défilement */
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Styles pour les conteneurs */
+  .container {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ajustements spécifiques pour les tableaux de données */
+  .print-summary table {
+    margin-bottom: 0.3cm !important;
+  }
+
+  .print-summary td,
+  .print-summary th {
+    font-size: 7pt !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Optimisation de l'espace pour Crescendo */
+  .print-summary .grid {
+    margin-top: 0.5cm !important;
+  }
+
+  .print-summary .grid table {
+    font-size: 7pt !important;
+  }
+
+  /* Styles spécifiques pour la vue d'impression */
+  .print-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-friendly {
+    margin-bottom: 0.5cm !important;
+    break-inside: avoid !important;
+  }
+
+  .print-header {
+    margin-bottom: 0.5cm !important;
+  }
+
+  .print-footer {
+    margin-top: 0.5cm !important;
+  }
+
+  /* Styles spécifiques pour le planning */
+  .print-break-before-page {
+    break-before: page !important;
+  }
+}
+
+/* Styles pour les vidéos tutoriels */
+.aspect-w-16 {
+  position: relative;
+  padding-bottom: 56.25%;
+}
+
+.aspect-h-9 {
+  position: relative;
+}
+
+.aspect-w-16 iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Styles pour le tutoriel d'accueil */
+.tutorial-highlight {
+  position: relative;
+  z-index: 51;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.2) !important;
+  border-radius: 8px !important;
+  animation: tutorial-pulse 2s infinite;
+}
+
+@keyframes tutorial-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.7), 0 0 0 12px rgba(59, 130, 246, 0.3);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .mobile-full-width {
+    width: 100%;
+  }
+
+  .mobile-stack {
+    flex-direction: column;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
 }
