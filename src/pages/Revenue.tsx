@@ -500,7 +500,7 @@ export default function Revenue(): JSX.Element {
         ) : activeTab === 'comparatifs' ? (
           // Onglet Comparatifs
           <div className="space-y-6">
-          <div className="flex justify-end items-center mb-6">
+          <div className="flex justify-start items-center mb-6">
             <div className="flex items-center">
               <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300 min-w-[280px]">
                 <button
