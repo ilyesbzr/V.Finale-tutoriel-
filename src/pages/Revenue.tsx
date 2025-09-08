@@ -1,874 +1,1251 @@
-import React, { useState, useEffect, useRef } from 'react';
-import DateSelector from '../components/UI/DateSelector';
-import SiteSelector from '../components/UI/SiteSelector';
-import RevenueDetails from '../components/Revenue/RevenueDetails';
-import RevenueDistributionChart from '../components/Revenue/RevenueDistributionChart';
-import RevenuePerHourChart from '../components/Revenue/RevenuePerHourChart';
-import PreviousDayBilling from '../components/Revenue/PreviousDayBilling';
-import { Card, CardHeader, CardContent } from '../components/Dashboard/Card';
-import { mockData } from '../data/mockData';
-import { formatNumber } from '../utils/formatters';
-import PrintableSummary from '../components/Dashboard/PrintableSummary';
-import EmailReportButton from '../components/UI/EmailReportButton';
-import { generateEmailReport } from '../utils/reportGenerator';
-import EmailReportModal from '../components/UI/EmailReportModal';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList, ScatterChart, Scatter, LineChart, Line } from 'recharts';
-import { generateClientTypeData } from '../utils/chartHelpers';
-import { MockData, Department } from '../types';
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-interface RevenuePerHourTargets {
-  global: number;
-  mechanical: number;
-  quickService: number;
-  bodywork: number;
+@import './styles/print.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* CSS Variables for Design System */
+:root {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  --color-secondary-50: #f0fdf4;
+  --color-secondary-100: #dcfce7;
+  --color-secondary-200: #bbf7d0;
+  --color-secondary-300: #86efac;
+  --color-secondary-400: #4ade80;
+  --color-secondary-500: #22c55e;
+  --color-secondary-600: #16a34a;
+  --color-secondary-700: #15803d;
+  --color-secondary-800: #166534;
+  --color-secondary-900: #14532d;
+
+  --color-accent-50: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-200: #bfdbfe;
+  --color-accent-300: #93c5fd;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
+  --color-accent-800: #1e40af;
+  --color-accent-900: #1e3a8a;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-200: #a7f3d0;
+  --color-success-300: #6ee7b7;
+  --color-success-400: #34d399;
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065f46;
+  --color-success-900: #064e3b;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 20px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
 }
 
-interface ChartDataItem {
-  name: string;
-  [year: number]: number;
+/* Base styles */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-interface MonthlyDetailData {
-  month: string;
-  monthIndex: number;
-  2023: number;
-  2024: number;
-  2025: number | null;
+body {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
-interface ReportData {
-  text: string;
-  html: string;
-  subject: string;
+/* Animations globales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-export default function Revenue(): JSX.Element {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSite, setSelectedSite] = useState<string>('RO');
-  const [activeTab, setActiveTab] = useState<'progress' | 'targets' | 'comparatifs'>('progress');
-  const [emailReportData, setEmailReportData] = useState<ReportData | null>(null);
-  const [showEmailReportModal, setShowEmailReportModal] = useState<boolean>(false);
-  const [clientTypeView, setClientTypeView] = useState<'service' | 'clientType'>('service');
-  const [viewType, setViewType] = useState<'canet' | 'hours' | 'capr' | 'pr'>('canet');
-  const [comparatifsViewType, setComparatifsViewType] = useState<'caapv' | 'capr'>('caapv');
-  const [selectedYear, setSelectedYear] = useState<number>(2025);
-  const [periodType, setPeriodType] = useState<'monthly' | 'yearly'>('monthly');
-  const [chartType, setChartType] = useState<'bar' | 'monthly'>('bar');
-  const contentRef = useRef<HTMLDivElement>(null);
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
 
-  // Scroll to top when tab changes
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      window.scrollTo(0, 0);
-    }
-  }, [activeTab]);
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-  // Utiliser directement les objectifs définis dans l'onglet Objectifs
-  const targets = {
-    mechanical: mockData.departments.mechanical.revenueTarget,
-    quickService: mockData.departments.quickService.revenueTarget,
-    bodywork: mockData.departments.bodywork.revenueTarget
-  };
-  
-  const data = {
-    departments: {
-      mechanical: { ...mockData.departments.mechanical, revenueTarget: targets.mechanical },
-      quickService: { ...mockData.departments.quickService, revenueTarget: targets.quickService },
-      bodywork: { ...mockData.departments.bodywork, revenueTarget: targets.bodywork }
-    }
-  };
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
 
-  // État pour la vue sélectionnée
-  const totalTarget = targets.mechanical + targets.quickService + targets.bodywork;
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-  // Objectifs CA/H par service
-  const revenuePerHourTargets: RevenuePerHourTargets = {
-    global: 300,
-    mechanical: 220,
-    quickService: 265,
-    bodywork: 419
-  };
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
 
-  const handlePrint = (): void => {
-    window.print();
-  };
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
 
-  const handleGenerateEmailReport = async (): Promise<void> => {
-    try {
-      const reportData = await generateEmailReport(mockData, selectedDate, selectedSite);
-      setEmailReportData(reportData);
-      setShowEmailReportModal(true);
-    } catch (error) {
-      console.error('Erreur lors de la génération du rapport:', error);
-      alert('Une erreur est survenue lors de la génération du rapport.');
-    }
-  };
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
 
-  const getClientTypeChartData = () => generateClientTypeData(viewType === 'pr' ? 'pr' : 'apv');
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
-  // Fonction pour obtenir les données filtrées du graphique
-  const getFilteredChartData = (): ChartDataItem[] => {
-    if (comparatifsViewType === 'capr') {
-      // Données pour CA PR avec tous les services
-      const baseData: Record<string, { base: number; variation: number }> = {
-        mechanical: { base: 650, variation: 0.1 },
-        quickService: { base: 720, variation: 0.15 },
-        bodywork: { base: 290, variation: 0.08 },
-        magasin: { base: 180, variation: 0.12 },
-        usineVO: { base: 220, variation: 0.09 },
-        serviceVN: { base: 340, variation: 0.14 },
-        serviceVO: { base: 280, variation: 0.11 }
-      };
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
 
-      const currentMonth = getCurrentMonth();
-      const seasonalFactor = periodType === 'monthly' ? getSeasonalFactor(currentMonth) : 1.0;
-      
-      return [
-        {
-          name: 'Mécanique',
-          [selectedYear - 2]: Math.round(baseData.mechanical.base * (periodType === 'yearly' ? 12 : 1) * 1.8 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.mechanical.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.mechanical.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Service Rapide',
-          [selectedYear - 2]: Math.round(baseData.quickService.base * (periodType === 'yearly' ? 12 : 1) * 1.2 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.quickService.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.quickService.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Carrosserie',
-          [selectedYear - 2]: Math.round(baseData.bodywork.base * (periodType === 'yearly' ? 12 : 1) * 1.4 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.bodywork.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.bodywork.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Magasin',
-          [selectedYear - 2]: Math.round(baseData.magasin.base * (periodType === 'yearly' ? 12 : 1) * 1.6 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.magasin.base * (periodType === 'yearly' ? 12 : 1) * 1.4 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.magasin.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Usine VO',
-          [selectedYear - 2]: Math.round(baseData.usineVO.base * (periodType === 'yearly' ? 12 : 1) * 1.5 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.usineVO.base * (periodType === 'yearly' ? 12 : 1) * 1.2 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.usineVO.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Service VN',
-          [selectedYear - 2]: Math.round(baseData.serviceVN.base * (periodType === 'yearly' ? 12 : 1) * 1.7 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.serviceVN.base * (periodType === 'yearly' ? 12 : 1) * 1.4 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.serviceVN.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Service VO',
-          [selectedYear - 2]: Math.round(baseData.serviceVO.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.serviceVO.base * (periodType === 'yearly' ? 12 : 1) * 1.1 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.serviceVO.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        }
-      ];
-    } else {
-      // Données pour CA APV (services originaux seulement)
-      const baseData: Record<string, { base: number; variation: number }> = {
-        mechanical: { base: 650, variation: 0.1 },
-        quickService: { base: 720, variation: 0.15 },
-        bodywork: { base: 290, variation: 0.08 }
-      };
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
 
-      const currentMonth = getCurrentMonth();
-      const seasonalFactor = periodType === 'monthly' ? getSeasonalFactor(currentMonth) : 1.0;
-      
-      return [
-        {
-          name: 'Mécanique',
-          [selectedYear - 2]: Math.round(baseData.mechanical.base * (periodType === 'yearly' ? 12 : 1) * 1.8 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.mechanical.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.mechanical.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Service Rapide',
-          [selectedYear - 2]: Math.round(baseData.quickService.base * (periodType === 'yearly' ? 12 : 1) * 1.2 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.quickService.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.quickService.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        },
-        {
-          name: 'Carrosserie',
-          [selectedYear - 2]: Math.round(baseData.bodywork.base * (periodType === 'yearly' ? 12 : 1) * 1.4 * seasonalFactor * getYearFactor(selectedYear - 2)),
-          [selectedYear - 1]: Math.round(baseData.bodywork.base * (periodType === 'yearly' ? 12 : 1) * 1.3 * seasonalFactor * getYearFactor(selectedYear - 1)),
-          [selectedYear]: Math.round(baseData.bodywork.base * (periodType === 'yearly' ? 12 : 1) * seasonalFactor * getYearFactor(selectedYear))
-        }
-      ];
-    }
-  };
+@keyframes pulse {
 
-  // Fonction pour obtenir le facteur saisonnier
-  const getSeasonalFactor = (month: string): number => {
-    const seasonalFactors: Record<string, number> = {
-      '01': 0.9, '02': 0.95, '03': 1.1, '04': 1.0, '05': 1.05, '06': 1.0,
-      '07': 0.8, '08': 0.7, '09': 1.15, '10': 1.2, '11': 1.1, '12': 0.95
-    };
-    return seasonalFactors[month] || 1.0;
-  };
+  0%,
+  100% {
+    opacity: 1;
+  }
 
-  // Obtenir le mois en cours
-  const getCurrentMonth = (): string => {
-    const currentDate = new Date();
-    return String(currentDate.getMonth() + 1).padStart(2, '0');
-  };
+  50% {
+    opacity: 0.5;
+  }
+}
 
-  // Fonction pour obtenir le facteur d'année (évolution dans le temps)
-  const getYearFactor = (year: number): number => {
-    // Facteur d'évolution basé sur l'année (croissance/décroissance)
-    const baseYear = 2025;
-    const yearDiff = year - baseYear;
-    
-    // Simulation d'une croissance de 3% par an
-    return Math.pow(1.03, yearDiff);
-  };
+@keyframes bounce {
 
-  // Fonction pour obtenir les données mensuelles détaillées (nuages de points)
-  const getMonthlyDetailData = (): MonthlyDetailData[] => {
-    const months = [
-      'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
-      'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
-    ];
-    
-    const data: MonthlyDetailData[] = [];
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth(); // 0-based (0 = janvier, 7 = août)
-    const currentYear = currentDate.getFullYear();
-    
-    months.forEach((month, index) => {
-      // Pour 2025, s'arrêter au mois précédent le mois en cours
-      const shouldInclude2025 = selectedYear !== currentYear || index < currentMonth;
-      
-      // Facteur saisonnier
-      const seasonalFactor = getSeasonalFactor(String(index + 1).padStart(2, '0'));
-      
-      // Données pour chaque année
-      const baseValue = 650; // Valeur de base pour le CA NET
-      
-      data.push({
-        month,
-        monthIndex: index + 1,
-        2023: Math.round(baseValue * 0.85 * seasonalFactor * getYearFactor(2023)),
-        2024: Math.round(baseValue * 0.92 * seasonalFactor * getYearFactor(2024)),
-        2025: shouldInclude2025 ? Math.round(baseValue * seasonalFactor * getYearFactor(2025)) : null
-      });
-    });
-    
-    return data;
-  };
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
 
-  // Fonction pour obtenir le nom du mois
-  const getMonthName = (monthNumber: string): string => {
-    const months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-    ];
-    return months[parseInt(monthNumber) - 1];
-  };
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
 
-  // Calculate total revenue and target for widgets
-  const totalRevenue = Object.values(data.departments).reduce((sum, dept) => sum + dept.revenue, 0);
-  const totalRevenueTarget = Object.values(data.departments).reduce((sum, dept) => sum + dept.revenueTarget, 0);
+@keyframes float {
 
-  return (
-    <div className="p-4 sm:p-6">
-      <div ref={contentRef} className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-        <DateSelector 
-          selectedDate={selectedDate}
-          onChange={setSelectedDate}
-        />
-        <div className="flex items-center gap-4 self-end sm:self-auto">
-          <EmailReportButton onClick={handleGenerateEmailReport} />
-          <SiteSelector
-            selectedSite={selectedSite}
-            onChange={setSelectedSite}
-          />
-        </div>
-      </div>
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
 
-      {/* Onglets */}
-      <div className="mb-8 overflow-x-auto">
-        <div className="flex justify-center">
-          <nav className="inline-flex bg-gray-100 rounded-xl p-1 shadow-sm border border-gray-200">
-            <button
-              onClick={() => setActiveTab('progress')}
-              className={`relative px-10 py-5 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out transform overflow-hidden ${
-                activeTab === 'progress'
-                  ? 'bg-white text-blue-700 shadow-md scale-105 ring-2 ring-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:scale-102'
-              }`}
-            >
-              <span className="relative z-10">
-                <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </span>
-              <span className="text-xl font-semibold">Avancement</span>
-              {activeTab === 'progress' && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-t-full"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('targets')}
-              className={`relative px-10 py-5 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out transform overflow-hidden ${
-                activeTab === 'targets'
-                  ? 'bg-white text-blue-700 shadow-md scale-105 ring-2 ring-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:scale-102'
-              }`}
-            >
-              <span className="relative z-10">
-                <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </span>
-              <span className="text-xl font-semibold">Objectifs</span>
-              {activeTab === 'targets' && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-t-full"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('comparatifs')}
-              className={`relative px-10 py-5 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out transform overflow-hidden ${
-                activeTab === 'comparatifs'
-                  ? 'bg-white text-blue-700 shadow-md scale-105 ring-2 ring-blue-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 hover:scale-102'
-              }`}
-            >
-              <span className="relative z-10">
-                <svg className="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </span>
-              <span className="text-xl font-semibold">Comparatifs</span>
-              {activeTab === 'comparatifs' && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-t-full"></div>
-              )}
-            </button>
-          </nav>
-        </div>
-      </div>
+  50% {
+    transform: translateY(-10px);
+  }
+}
 
-      <div className="space-y-6 no-print">
-        {activeTab === 'progress' ? (
-          <>
-            <RevenueDetails data={data.departments} viewType={viewType} setViewType={setViewType} />
-            <PreviousDayBilling data={data.departments} />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RevenueDistributionChart 
-                data={data.departments} 
-                clientTypeView="service"
-                onClientTypeViewChange={null}
-                getClientTypeChartData={getClientTypeChartData}
-              />
-              <RevenueDistributionChart 
-                data={data.departments} 
-                clientTypeView="clientType"
-                onClientTypeViewChange={null}
-                getClientTypeChartData={getClientTypeChartData}
-              />
-            </div>
-          </>
-        ) : activeTab === 'targets' ? (
-          <div className="space-y-6">
-            {/* Objectifs CA APV du mois */}
-            <Card>
-              <CardHeader title="Objectifs CA APV du mois" />
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Global</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(Math.round(totalRevenueTarget * 0.7))}€
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Mécanique</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(Math.round(targets.mechanical * 0.7))}€
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Service Rapide</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(Math.round(targets.quickService * 0.7))}€
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Carrosserie</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(Math.round(targets.bodywork * 0.7))}€
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+@keyframes glow {
 
-            {/* Objectifs CA PR du mois */}
-            <Card>
-              <CardHeader title="Objectifs CA PR du mois" />
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Global</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(totalRevenueTarget)}€
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Mécanique</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(targets.mechanical)}€
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Service Rapide</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(targets.quickService)}€
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Carrosserie</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(targets.bodywork)}€
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Objectifs CA/HT par service */}
-            <Card>
-              <CardHeader title="Objectifs CA/HT par service" />
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Global</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(revenuePerHourTargets.global)}€/h
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Mécanique</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(revenuePerHourTargets.mechanical)}€/h
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Service Rapide</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(revenuePerHourTargets.quickService)}€/h
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Carrosserie</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {formatNumber(revenuePerHourTargets.bodywork)}€/h
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : activeTab === 'comparatifs' ? (
-          // Onglet Comparatifs
-          <div className="space-y-6">
-          <div className="flex justify-end items-center mb-6">
-            <div className="flex items-center">
-              <div className="inline-flex bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-1.5 shadow-lg border border-gray-300 min-w-[280px]">
-                <button
-                  onClick={() => setComparatifsViewType('caapv')}
-                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
-                    comparatifsViewType === 'caapv'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105 ring-2 ring-blue-300 ring-opacity-50'
-                      : 'text-gray-700 hover:text-blue-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <span className="text-base font-bold">CA APV</span>
-                  </span>
-                  {comparatifsViewType === 'caapv' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 rounded-xl opacity-20 animate-pulse"></div>
-                  )}
-                </button>
-                <button
-                  onClick={() => setComparatifsViewType('capr')}
-                  className={`relative px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ease-in-out transform ${
-                    comparatifsViewType === 'capr'
-                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg scale-105 ring-2 ring-purple-300 ring-opacity-50'
-                      : 'text-gray-700 hover:text-purple-600 hover:bg-white/70 hover:scale-102 hover:shadow-md'
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    <span className="text-base font-bold">CA PR</span>
-                  </span>
-                  {comparatifsViewType === 'capr' && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-purple-500 rounded-xl opacity-20 animate-pulse"></div>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
 
-            {/* Graphique de comparaison par département et année */}
-            <Card>
-              <div className="px-4 py-3 border-b border-gray-200">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium text-gray-900"></h3>
-                </div>
-              </div>
-              <CardContent>
-                <div className="mb-4 flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm font-medium text-gray-700">Période</span>
-                      {chartType === 'bar' ? (
-                        <select
-                          value={periodType}
-                          onChange={(e) => setPeriodType(e.target.value as 'monthly' | 'yearly')}
-                          className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        >
-                          <option value="monthly">Mensuel</option>
-                          <option value="yearly">Annuel</option>
-                        </select>
-                      ) : (
-                        <span className="px-3 py-2 bg-gray-100 rounded-md text-sm font-medium text-gray-700">
-                          Annuel
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm font-medium text-gray-700">Vue</span>
-                      <select
-                        value={chartType}
-                        onChange={(e) => {
-                          setChartType(e.target.value as 'bar' | 'monthly');
-                          if (e.target.value === 'monthly') {
-                            setPeriodType('yearly');
-                          }
-                        }}
-                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                      >
-                        <option value="bar">Comparaison</option>
-                        <option value="monthly">Détail par mois</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-gray-700">Année</span>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded ${comparatifsViewType === 'caapv' ? 'bg-blue-900' : 'bg-purple-900'}`}></div>
-                      <span className="text-sm">{chartType === 'monthly' ? '2023' : selectedYear - 2}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded ${comparatifsViewType === 'caapv' ? 'bg-blue-600' : 'bg-purple-600'}`}></div>
-                      <span className="text-sm">{chartType === 'monthly' ? '2024' : selectedYear - 1}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded ${comparatifsViewType === 'caapv' ? 'bg-blue-400' : 'bg-purple-400'}`}></div>
-                      <span className="text-sm">{chartType === 'monthly' ? '2025' : selectedYear}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mb-4 text-center">
-                  <h4 className="text-sm font-medium text-gray-700">
-                    {chartType === 'bar' 
-                      ? `Comparaison ${periodType === 'monthly' ? 'mensuelle' : 'annuelle'} - ${comparatifsViewType === 'caapv' ? 'CA APV' : 'CA PR'}`
-                      : `Évolution mensuelle - ${comparatifsViewType === 'caapv' ? 'CA APV' : 'CA PR'}`}
-                  </h4>
-                </div>
-                
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    {chartType === 'bar' ? (
-                      <BarChart
-                        data={getFilteredChartData()}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                        barGap={10}
-                        barCategoryGap={40}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="name" 
-                          angle={-45}
-                          textAnchor="end"
-                          height={80}
-                          tick={{ fontSize: 12 }}
-                        />
-                        <YAxis 
-                          tickFormatter={(value: number) => `${value}K`}
-                          domain={[0, 1200]}
-                        />
-                        <Tooltip 
-                          formatter={(value: number, name: string) => [`${formatNumber(value * (comparatifsViewType === 'caapv' ? 0.7 : 0.8))}K€`, name]}
-                        />
-                        <Legend />
-                        <Bar dataKey={selectedYear - 2} name={`${selectedYear - 2}`} fill={comparatifsViewType === 'caapv' ? "#1e3a8a" : "#7c2d92"} barSize={60}>
-                          <LabelList
-                            dataKey={selectedYear - 2}
-                            position="top"
-                            formatter={(value: number) => `${formatNumber(value * (comparatifsViewType === 'caapv' ? 0.7 : 0.8))}K€`}
-                            style={{ fontSize: '12px', fill: comparatifsViewType === 'caapv' ? '#1e3a8a' : '#7c2d92', fontWeight: 'bold' }}
-                          />
-                        </Bar>
-                        <Bar dataKey={selectedYear - 1} name={`${selectedYear - 1}`} fill={comparatifsViewType === 'caapv' ? "#3b82f6" : "#a855f7"} barSize={60}>
-                          <LabelList
-                            dataKey={selectedYear - 1}
-                            position="top"
-                            formatter={(value: number) => `${formatNumber(value * (comparatifsViewType === 'caapv' ? 0.7 : 0.8))}K€`}
-                            style={{ fontSize: '12px', fill: comparatifsViewType === 'caapv' ? '#3b82f6' : '#9333ea', fontWeight: 'bold' }}
-                          />
-                        </Bar>
-                        <Bar dataKey={selectedYear} name={`${selectedYear}`} fill={comparatifsViewType === 'caapv' ? "#93c5fd" : "#c4b5fd"} barSize={60}>
-                          <LabelList
-                            dataKey={selectedYear}
-                            position="top"
-                            formatter={(value: number) => `${formatNumber(value * (comparatifsViewType === 'caapv' ? 0.7 : 0.8))}K€`}
-                            style={{ fontSize: '12px', fill: comparatifsViewType === 'caapv' ? '#93c5fd' : '#a855f7', fontWeight: 'bold' }}
-                          />
-                        </Bar>
-                      </BarChart>
-                    ) : (
-                      <LineChart
-                        data={getMonthlyDetailData()}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.6} />
-                        <XAxis 
-                          dataKey="month"
-                          tick={{ fontSize: 12, fill: '#6b7280' }}
-                          axisLine={{ stroke: '#d1d5db' }}
-                          tickLine={{ stroke: '#d1d5db' }}
-                        />
-                        <YAxis 
-                          tickFormatter={(value: number) => `${value}K€`}
-                          domain={[0, 'auto']}
-                          tick={{ fontSize: 12, fill: '#6b7280' }}
-                          axisLine={{ stroke: '#d1d5db' }}
-                          tickLine={{ stroke: '#d1d5db' }}
-                        />
-                        <Tooltip 
-                          formatter={(value: number, name: string) => [`${formatNumber(value)}K€`, name]}
-                          labelFormatter={(label: string) => `Mois: ${label}`}
-                          contentStyle={{
-                            backgroundColor: 'white',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                            padding: '12px'
-                          }}
-                          labelStyle={{ color: '#374151', fontWeight: '600' }}
-                        />
-                        <Legend 
-                          wrapperStyle={{ paddingTop: '20px' }}
-                          iconType="line"
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="2023" 
-                          name="2023" 
-                          stroke={comparatifsViewType === 'caapv' ? "#1e3a8a" : "#9333ea"}
-                          strokeWidth={3}
-                          dot={{ r: 5, fill: comparatifsViewType === 'caapv' ? "#1e3a8a" : "#9333ea", strokeWidth: 2, stroke: "#ffffff" }}
-                          activeDot={{ r: 7, fill: comparatifsViewType === 'caapv' ? "#1e3a8a" : "#9333ea", strokeWidth: 2, stroke: "#ffffff" }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="2024" 
-                          name="2024" 
-                          stroke={comparatifsViewType === 'caapv' ? "#3b82f6" : "#9333ea"}
-                          strokeWidth={3}
-                          dot={{ r: 5, fill: comparatifsViewType === 'caapv' ? "#3b82f6" : "#9333ea", strokeWidth: 2, stroke: "#ffffff" }}
-                          activeDot={{ r: 7, fill: comparatifsViewType === 'caapv' ? "#3b82f6" : "#9333ea", strokeWidth: 2, stroke: "#ffffff" }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="2025" 
-                          name="2025" 
-                          stroke={comparatifsViewType === 'caapv' ? "#93c5fd" : "#a855f7"}
-                          strokeWidth={3}
-                          dot={{ r: 5, fill: comparatifsViewType === 'caapv' ? "#93c5fd" : "#a855f7", strokeWidth: 2, stroke: "#ffffff" }}
-                          activeDot={{ r: 7, fill: comparatifsViewType === 'caapv' ? "#93c5fd" : "#a855f7", strokeWidth: 2, stroke: "#ffffff" }}
-                        />
-                      </LineChart>
-                    )}
-                  </ResponsiveContainer>
-                </div>
-                
-                {/* Titre dynamique et affichage des valeurs en dessous du graphique */}
-                <div className="mt-6 mb-4 text-center">
-                </div>
-                
-                {/* Affichage conditionnel selon le type de graphique */}
-                {chartType === 'bar' ? (
-                  // Comparaison mois en cours : affichage par service
-                  <div className="mt-6 grid grid-cols-3 gap-4">
-                    {getFilteredChartData().map((item, index) => {
-                      // Ajuster les valeurs selon le type sélectionné (CA APV ou CA PR)
-                      const adjustmentFactor = comparatifsViewType === 'caapv' ? 0.7 : 0.8;
-                      const adjustedItem = {
-                        ...item,
-                        [selectedYear - 2]: Math.round(item[selectedYear - 2] * adjustmentFactor),
-                        [selectedYear - 1]: Math.round(item[selectedYear - 1] * adjustmentFactor),
-                        [selectedYear]: Math.round(item[selectedYear] * adjustmentFactor)
-                      };
-                      
-                      return (
-                      <div key={item.name} className="bg-gray-50 p-4 rounded-lg">
-                        <h3 className="text-sm font-medium text-gray-700 mb-3 text-center">{item.name}</h3>
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-600">{selectedYear - 2}:</span>
-                            <span className={`text-sm font-semibold ${comparatifsViewType === 'caapv' ? 'text-blue-900' : 'text-purple-900'}`}>{formatNumber(adjustedItem[selectedYear - 2])}K€</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-600">{selectedYear - 1}:</span>
-                            <span className={`text-sm font-semibold ${comparatifsViewType === 'caapv' ? 'text-blue-600' : 'text-purple-600'}`}>{formatNumber(adjustedItem[selectedYear - 1])}K€</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-600">{selectedYear}:</span>
-                            <span className={`text-sm font-semibold ${comparatifsViewType === 'caapv' ? 'text-blue-400' : 'text-purple-400'}`}>{formatNumber(adjustedItem[selectedYear])}K€</span>
-                          </div>
-                          
-                          {/* Indicateur visuel de progression */}
-                          <div className="mt-3 pt-2 border-t border-gray-100">
-                            <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs text-gray-500">Évolution:</span>
-                              <span className={`text-xs font-medium ${
-                                adjustedItem[selectedYear] > adjustedItem[selectedYear - 1] ? 'text-green-600' : 'text-red-600'
-                              }`}>
-                                {adjustedItem[selectedYear] > adjustedItem[selectedYear - 1] ? '+' : ''}{Math.round(((adjustedItem[selectedYear] - adjustedItem[selectedYear - 1]) / adjustedItem[selectedYear - 1]) * 100)}%
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div 
-                                className={`h-1.5 rounded-full ${
-                                  adjustedItem[selectedYear] > adjustedItem[selectedYear - 1] ? 'bg-green-500' : 'bg-red-500'
-                                }`}
-                                style={{ 
-                                  width: `${Math.min(Math.abs(((adjustedItem[selectedYear] - adjustedItem[selectedYear - 1]) / adjustedItem[selectedYear - 1]) * 100), 100)}%` 
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  // Détail par mois : affichage mensuel
-                  <div className="mt-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {getMonthlyDetailData().map((month, index) => {
-                        // Ajuster les valeurs selon le type sélectionné (CA APV ou CA PR)
-                        const adjustmentFactor = comparatifsViewType === 'caapv' ? 0.7 : 0.8;
-                        const adjustedMonth = {
-                          ...month,
-                          2023: Math.round(month[2023] * adjustmentFactor),
-                          2024: Math.round(month[2024] * adjustmentFactor),
-                          2025: month[2025] ? Math.round(month[2025] * adjustmentFactor) : null
-                        };
-                        
-                        return (
-                        <div key={month.month} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                          <h5 className="text-sm font-medium text-gray-800 mb-3 text-center">{month.month}</h5>
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">2023:</span>
-                              <span className={`text-sm font-semibold ${comparatifsViewType === 'caapv' ? 'text-blue-900' : 'text-purple-900'}`}>{formatNumber(adjustedMonth[2023])}K€</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-xs text-gray-600">2024:</span>
-                              <span className={`text-sm font-semibold ${comparatifsViewType === 'caapv' ? 'text-blue-600' : 'text-purple-600'}`}>{formatNumber(adjustedMonth[2024])}K€</span>
-                            </div>
-                            {adjustedMonth[2025] && (
-                              <div className="flex justify-between items-center">
-                                <span className="text-xs text-gray-600">2025:</span>
-                                <span className={`text-sm font-semibold ${comparatifsViewType === 'caapv' ? 'text-blue-400' : 'text-purple-400'}`}>{formatNumber(adjustedMonth[2025])}K€</span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Indicateur visuel de progression */}
-                          {adjustedMonth[2025] && (
-                            <div className="mt-3 pt-2 border-t border-gray-100">
-                              <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs text-gray-500">Évolution:</span>
-                                <span className={`text-xs font-medium ${
-                                  adjustedMonth[2025] > adjustedMonth[2024] ? 'text-green-600' : 'text-red-600'
-                                }`}>
-                                  {adjustedMonth[2025] > adjustedMonth[2024] ? '+' : ''}{Math.round(((adjustedMonth[2025] - adjustedMonth[2024]) / adjustedMonth[2024]) * 100)}%
-                                </span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                <div 
-                                  className={`h-1.5 rounded-full ${
-                                    adjustedMonth[2025] > adjustedMonth[2024] ? 'bg-green-500' : 'bg-red-500'
-                                  }`}
-                                  style={{ 
-                                    width: `${Math.min(Math.abs(((adjustedMonth[2025] - adjustedMonth[2024]) / adjustedMonth[2024]) * 100), 100)}%` 
-                                  }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        ) : null}
-      </div>
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
 
-      <div className="hidden print:block">
-        <PrintableSummary data={mockData.departments} />
-      </div>
+/* Classes d'animation réutilisables */
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-      {/* Modal pour le rapport par email */}
-      <EmailReportModal
-        isOpen={showEmailReportModal}
-        onClose={() => setShowEmailReportModal(false)}
-        reportData={emailReportData}
-      />
-    </div>
-  );
+.animate-slide-in-right {
+  animation: slideInFromRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-in-top {
+  animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200px 100%;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Enhanced Card Styles */
+.card-modern {
+  background: rgb(255, 255, 255);
+  border: 1px solid #e5e7eb;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2xl);
+  border-color: #3b82f6;
+}
+
+/* Enhanced Button Styles */
+.btn-modern {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-modern:hover::before {
+  left: 100%;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-modern:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Input Styles */
+.input-modern {
+  border-radius: var(--border-radius-lg);
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.input-modern:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: rgba(255, 255, 255, 1);
+}
+
+/* Enhanced Progress Bars */
+.progress-modern {
+  background: linear-gradient(90deg, #f1f5f9, #e2e8f0);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.progress-fill-modern {
+  border-radius: 9999px;
+  position: relative;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-400));
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.progress-fill-success {
+  background: linear-gradient(90deg, var(--color-success-500), var(--color-success-400));
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.progress-fill-warning {
+  background: linear-gradient(90deg, var(--color-warning-500), var(--color-warning-400));
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.progress-fill-error {
+  background: linear-gradient(90deg, var(--color-error-500), var(--color-error-400));
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced Table Styles */
+.table-modern {
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: white;
+}
+
+.table-modern thead {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.table-modern th {
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 16px 20px;
+}
+
+.table-modern td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.table-modern tbody tr:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.02), rgba(59, 130, 246, 0.05));
+}
+
+/* Enhanced Sidebar */
+.sidebar-modern {
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e293b 100%);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-item {
+  position: relative;
+  margin: 4px 8px;
+  border-radius: var(--border-radius-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.sidebar-item:hover::before {
+  left: 100%;
+}
+
+.sidebar-item:hover {
+  transform: translateX(4px);
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid var(--color-primary-400);
+}
+
+.sidebar-item.active {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  box-shadow: var(--shadow-lg);
+  transform: translateX(4px);
+}
+
+/* Enhanced Modal Styles */
+.modal-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+/* Enhanced Tooltip Styles */
+.tooltip-modern {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 12px 16px;
+  max-width: 280px;
+}
+
+/* Enhanced Chart Container */
+.chart-container {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Header */
+.header-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Navigation Tabs */
+.nav-tabs-modern {
+  background: rgba(241, 245, 249, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl);
+  padding: 6px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nav-tab-modern {
+  position: relative;
+  border-radius: var(--border-radius-lg);
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.nav-tab-modern.active {
+  background: white;
+  box-shadow: var(--shadow-md);
+  color: var(--color-primary-700);
+}
+
+.nav-tab-modern.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-accent-500));
+  border-radius: 2px;
+}
+
+.nav-tab-modern:not(.active):hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-1px);
+}
+
+/* Enhanced Metric Cards */
+.metric-card-modern {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-primary-500);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.metric-card-modern:hover::before {
+  opacity: 1;
+}
+
+
+/* Enhanced Status Indicators */
+.status-success {
+  background: linear-gradient(135deg, var(--color-success-500), var(--color-success-400));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+.status-warning {
+  background: linear-gradient(135deg, var(--color-warning-500), var(--color-warning-400));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+.status-error {
+  background: linear-gradient(135deg, var(--color-error-500), var(--color-error-400));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced Loading States */
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--border-radius-md);
+}
+
+.loading-spinner-modern {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.1);
+  border-top: 3px solid var(--color-primary-500);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: var(--shadow-md);
+}
+
+/* Transitions fluides */
+.page-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Menu Items */
+.menu-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.menu-item:hover {
+  transform: translateX(4px) scale(1.02);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 60%;
+  background: linear-gradient(180deg, var(--color-primary-500), var(--color-accent-500));
+  border-radius: 0 4px 4px 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-item.active::after {
+  width: 4px;
+}
+
+.button-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button-hover:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Enhanced Form Elements */
+.form-group-modern {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.form-label-modern {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  background: white;
+  padding: 0 8px;
+  border-radius: 4px;
+}
+
+.form-input-modern:focus+.form-label-modern,
+.form-input-modern:not(:placeholder-shown)+.form-label-modern {
+  transform: translateY(-32px) scale(0.85);
+  color: var(--color-primary-600);
+  font-weight: 600;
+}
+
+/* Enhanced Dropdown */
+.dropdown-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.dropdown-item-modern {
+  padding: 12px 20px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 3px solid transparent;
+}
+
+.dropdown-item-modern:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  border-left-color: var(--color-primary-500);
+  transform: translateX(4px);
+}
+
+/* Enhanced Calendar */
+.calendar-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.calendar-day {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--border-radius-md);
+  position: relative;
+}
+
+.calendar-day:hover {
+  transform: scale(1.1);
+  background: var(--color-primary-100);
+  box-shadow: var(--shadow-md);
+}
+
+.calendar-day.selected {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Enhanced Chat Widget */
+.chat-widget-modern {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  border-radius: 50%;
+  box-shadow: var(--shadow-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-widget-modern::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: spin 3s linear infinite;
+}
+
+.chat-widget-modern:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-2xl);
+}
+
+.chat-window-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-2xl);
+  overflow: hidden;
+}
+
+/* Enhanced Notification */
+.notification-modern {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  border-left: 4px solid var(--color-primary-500);
+}
+
+/* Enhanced Badge */
+.badge-modern {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  color: white;
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge-modern:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+/* Enhanced Search */
+.search-modern {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(226, 232, 240, 0.8);
+  border-radius: var(--border-radius-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-modern:focus-within {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: white;
+}
+
+/* Enhanced Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-primary-400), var(--color-primary-500));
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-primary-500), var(--color-primary-600));
+}
+
+/* Enhanced Focus States */
+.focus-modern:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-primary-500);
+}
+
+/* Enhanced Grid Layout */
+.grid-modern {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+}
+
+/* Enhanced Typography */
+.heading-modern {
+  background: linear-gradient(135deg, #1e293b, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-accent-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation du loader */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced Utility Classes */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-shadow-lg {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.backdrop-blur-xs {
+  backdrop-filter: blur(2px);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+}
+
+/* Enhanced Interactive Elements */
+.interactive {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive:hover {
+  transform: translateY(-1px);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* Enhanced Dividers */
+.divider-modern {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(226, 232, 240, 0.8), transparent);
+  margin: 24px 0;
+}
+
+.divider-gradient {
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary-500), var(--color-accent-500), var(--color-secondary-500));
+  border-radius: 1px;
+  margin: 16px 0;
+}
+
+/* Print-specific display utilities */
+.print-only {
+  display: none;
+}
+
+@media print {
+  .print-only {
+    display: block;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Styles d'impression */
+@media print {
+
+  /* Configuration de base */
+  @page {
+    size: landscape;
+    margin: 0.5cm;
+  }
+
+  /* Styles généraux pour l'impression */
+  body {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    background: white !important;
+    color: black !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 8pt !important;
+  }
+
+  /* Cacher les éléments non imprimables */
+  .no-print,
+  button:not(.print-button),
+  nav,
+  header {
+    display: none !important;
+  }
+
+  /* Styles pour les tableaux */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    break-inside: auto !important;
+    font-size: 8pt !important;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  td,
+  th {
+    padding: 2px 4px !important;
+    border: 1px solid #e2e8f0 !important;
+    white-space: nowrap !important;
+  }
+
+  th {
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    color: #4a5568 !important;
+    background-color: #f7fafc !important;
+  }
+
+  /* Styles pour les titres */
+  h1 {
+    font-size: 14pt !important;
+    margin-bottom: 0.3cm !important;
+    break-after: avoid !important;
+  }
+
+  h2 {
+    font-size: 12pt !important;
+    margin-top: 0.3cm !important;
+    margin-bottom: 0.2cm !important;
+    break-after: avoid !important;
+  }
+
+  h3 {
+    font-size: 10pt !important;
+    margin-top: 0.2cm !important;
+    margin-bottom: 0.1cm !important;
+    break-after: avoid !important;
+  }
+
+  /* Forcer les sauts de page appropriés */
+  .print-page-break {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+
+  /* Empêcher les sauts de page indésirables */
+  .print-keep-together {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Styles spécifiques pour PrintableSummary */
+  .print-summary {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Grille pour Crescendo */
+  .grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.3cm !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ajustements de mise en page */
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  .print\:m-0 {
+    margin: 0 !important;
+  }
+
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  /* Assurer que le contenu est visible */
+  .print\:block {
+    display: block !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Styles pour la barre de défilement */
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Styles pour les conteneurs */
+  .container {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ajustements spécifiques pour les tableaux de données */
+  .print-summary table {
+    margin-bottom: 0.3cm !important;
+  }
+
+  .print-summary td,
+  .print-summary th {
+    font-size: 7pt !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Optimisation de l'espace pour Crescendo */
+  .print-summary .grid {
+    margin-top: 0.5cm !important;
+  }
+
+  .print-summary .grid table {
+    font-size: 7pt !important;
+  }
+
+  /* Styles spécifiques pour la vue d'impression */
+  .print-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-friendly {
+    margin-bottom: 0.5cm !important;
+    break-inside: avoid !important;
+  }
+
+  .print-header {
+    margin-bottom: 0.5cm !important;
+  }
+
+  .print-footer {
+    margin-top: 0.5cm !important;
+  }
+
+  /* Styles spécifiques pour le planning */
+  .print-break-before-page {
+    break-before: page !important;
+  }
+}
+
+/* Styles pour les vidéos tutoriels */
+.aspect-w-16 {
+  position: relative;
+  padding-bottom: 56.25%;
+}
+
+.aspect-h-9 {
+  position: relative;
+}
+
+.aspect-w-16 iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Styles pour le tutoriel d'accueil */
+.tutorial-highlight {
+  position: relative;
+  z-index: 51;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.2) !important;
+  border-radius: 8px !important;
+  animation: tutorial-pulse 2s infinite;
+}
+
+@keyframes tutorial-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.7), 0 0 0 12px rgba(59, 130, 246, 0.3);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .mobile-full-width {
+    width: 100%;
+  }
+
+  .mobile-stack {
+    flex-direction: column;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
 }
