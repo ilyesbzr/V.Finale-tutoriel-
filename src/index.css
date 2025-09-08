@@ -353,34 +353,55 @@ body {
   position: relative;
   background: linear-gradient(90deg, var(--color-primary-500), var(--color-primary-400));
   transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateZ(0);
-  will-change: width;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .progress-fill-success {
   background: linear-gradient(90deg, var(--color-success-500), var(--color-success-400));
-  transform: translateZ(0);
-  will-change: width;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .progress-fill-warning {
   background: linear-gradient(90deg, var(--color-warning-500), var(--color-warning-400));
-  transform: translateZ(0);
-  will-change: width;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-}
-
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 .progress-fill-error {
   background: linear-gradient(90deg, var(--color-error-500), var(--color-error-400));
-  transform: translateZ(0);
-  will-change: width;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Enhanced Table Styles */
