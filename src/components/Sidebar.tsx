@@ -32,12 +32,12 @@ function Sidebar() {
 
   return (
     <div className="hidden md:flex md:flex-shrink-0">
-      <div className="flex flex-col w-80">
+      <div className="flex flex-col w-84">
         <div className="flex flex-col h-0 flex-1 sidebar-modern">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center justify-center flex-shrink-0 px-4 mb-8">
               <div className="text-center">
-                <span className="text-white text-3xl font-bold tracking-tight">AutoDashboard</span>
+                <span className="text-white text-4xl font-bold tracking-tight">AutoDashboard</span>
                 <div className="w-16 h-1 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full mx-auto mt-2"></div>
               </div>
             </div>
@@ -45,89 +45,89 @@ function Sidebar() {
 
               <Link
                 to="/targets"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/targets')} ${location.pathname === '/targets' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/targets')} ${location.pathname === '/targets' ? 'active' : ''}`}
               >
-                <AdjustmentsHorizontalIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <AdjustmentsHorizontalIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.targets')}
               </Link>
               
                 <Link
                   to="/synthesis"
-                  className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/synthesis')} ${location.pathname === '/synthesis' ? 'active' : ''}`}
+                  className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/synthesis')} ${location.pathname === '/synthesis' ? 'active' : ''}`}
                 >
-                  <PresentationChartLineIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                  <PresentationChartLineIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                   Synthèse
                 </Link>
 
               <Link
                 to="/revenue"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/revenue')} ${location.pathname === '/revenue' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/revenue')} ${location.pathname === '/revenue' ? 'active' : ''}`}
               >
-                <ChartBarIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <ChartBarIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.revenue')}
               </Link>
 
               <Link
                 to="/hours"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/hours')} ${location.pathname === '/hours' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/hours')} ${location.pathname === '/hours' ? 'active' : ''}`}
               >
-                <ClockIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <ClockIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.hours')}
               </Link>
 
               <Link
                 to="/crescendo"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/crescendo')} ${location.pathname === '/crescendo' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/crescendo')} ${location.pathname === '/crescendo' ? 'active' : ''}`}
               >
-                <ShoppingCartIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <ShoppingCartIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.crescendo')}
               </Link>
 
               <Link
                 to="/productivity"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/productivity')} ${location.pathname === '/productivity' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/productivity')} ${location.pathname === '/productivity' ? 'active' : ''}`}
               >
-                <ChartPieIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <ChartPieIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 Rentabilité
               </Link>
 
               <Link
                 to="/entries"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/entries')} ${location.pathname === '/entries' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/entries')} ${location.pathname === '/entries' ? 'active' : ''}`}
               >
-                <DocumentCheckIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <DocumentCheckIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.entries')}
               </Link>
 
               <Link
                 to="/quality"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/quality')} ${location.pathname === '/quality' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/quality')} ${location.pathname === '/quality' ? 'active' : ''}`}
               >
-                <ClipboardDocumentCheckIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <ClipboardDocumentCheckIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.quality')}
               </Link>
 
               <Link
                 to="/parts"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/parts')} ${location.pathname === '/parts' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/parts')} ${location.pathname === '/parts' ? 'active' : ''}`}
               >
-                <WrenchScrewdriverIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <WrenchScrewdriverIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 Pièces
               </Link>
 
               <Link
                 to="/rent"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/rent')} ${location.pathname === '/rent' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/rent')} ${location.pathname === '/rent' ? 'active' : ''}`}
               >
-                <TruckIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <TruckIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 Rent
               </Link>
 
               <Link
                 to="/commercial-gestures"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/commercial-gestures')} ${location.pathname === '/commercial-gestures' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/commercial-gestures')} ${location.pathname === '/commercial-gestures' ? 'active' : ''}`}
               >
-                <HandRaisedIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <HandRaisedIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 Gestes commerciaux
               </Link>
             </nav>
@@ -137,17 +137,17 @@ function Sidebar() {
 
               <Link
                 to="/tutoriels-video"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/tutoriels-video')} ${location.pathname === '/tutoriels-video' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/tutoriels-video')} ${location.pathname === '/tutoriels-video' ? 'active' : ''}`}
               >
-                <FilmIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <FilmIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.tutorials')}
               </Link>
 
               <Link
                 to="/help"
-                className={`sidebar-item group flex items-center px-4 py-3 text-lg font-medium ${isActive('/help')} ${location.pathname === '/help' ? 'active' : ''}`}
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/help')} ${location.pathname === '/help' ? 'active' : ''}`}
               >
-                <QuestionMarkCircleIcon className="mr-3 h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+                <QuestionMarkCircleIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
                 {t('navigation.help')}
               </Link>
             </div>
