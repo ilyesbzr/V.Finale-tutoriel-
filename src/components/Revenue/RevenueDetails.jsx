@@ -151,7 +151,6 @@ export default function RevenueDetails({ data, viewType, setViewType }) {
               monthProgress={monthProgress}
               unit="€"
               isVisible={isVisible}
-              showProjectedValue={true}
             />
           ))}
         </div>
