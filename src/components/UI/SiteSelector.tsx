@@ -1,47 +1,48 @@
-import React, { useState } from 'react';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import React from 'react';
+import { ChevronDownIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { SITES } from '../../utils/constants/metrics';
+import { useTranslation } from 'react-i18next';
+
+interface Site {
+  id: string;
+  name: string;
+}
 
 interface SiteSelectorProps {
   selectedSite: string;
-  onSiteChange: (site: string) => void;
-  sites: string[];
+  onChange: (site: string) => void;
 }
 
-export const SiteSelector: React.FC<SiteSelectorProps> = ({
-  selectedSite,
-  onSiteChange,
-  sites
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
+const sites: Site[] = [
+  { id: 'RO', name: SITES.RO },
+  { id: 'EU', name: SITES.EU },
+  { id: 'MTD', name: SITES.MTD },
+  { id: 'ST', name: SITES.ST }
+];
 
+export default function SiteSelector({ selectedSite, onChange }: SiteSelectorProps): JSX.Element {
+  const { t } = useTranslation();
+  
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between min-w-[120px] px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <span>{selectedSite}</span>
-        <ChevronDownIcon className={`h-4 w-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+    <div className="flex items-center space-x-3">
+      <label htmlFor="site" className="text-base font-semibold text-gray-700 hidden sm:inline flex items-center gap-2">
+        {t('common.site', 'Concession')} :
+      </label>
+      <div className="relative">
+        <select
+          id="site"
+          value={selectedSite}
+          onChange={(e) => onChange(e.target.value)}
+          className="appearance-none bg-white border-2 border-gray-200 rounded-xl px-4 py-3 pr-10 text-base font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md min-w-[140px]"
+        >
           {sites.map((site) => (
-            <button
-              key={site}
-              onClick={() => {
-                onSiteChange(site);
-                setIsOpen(false);
-              }}
-              className={`w-full px-3 py-2 text-left text-sm hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg ${
-                site === selectedSite ? 'bg-blue-500 text-white' : 'text-gray-700'
-              }`}
-            >
-              {site}
-            </button>
+            <option key={site.id} value={site.id}>
+              {site.name}
+            </option>
           ))}
-        </div>
-      )}
+        </select>
+        <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500 pointer-events-none" />
+      </div>
     </div>
   );
-};
+}

@@ -42,7 +42,7 @@ export default function MobileSidebar({ isOpen, onClose }) {
       <div className="relative flex flex-col w-72 max-w-xs h-full overflow-y-auto" style={{background: 'linear-gradient(180deg, #1e3a8a 0%, #1e293b 100%)'}}>
         <div className="flex items-center justify-between p-4 border-b border-blue-800">
           <span className="text-xl font-bold">
-            <span className="text-blue-400">Auto</span><span className="text-white">Dashboard</span>
+            <span className="text-blue-300">Auto</span><span className="text-white">Dashboard</span>
           </span>
           <button
             onClick={onClose}
@@ -56,73 +56,73 @@ export default function MobileSidebar({ isOpen, onClose }) {
 
           <Link
             to="/rent"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/rent')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/rent')}`}
             onClick={onClose}
           >
-                <TruckIcon className="mr-3 h-7 w-7" />
+                <TruckIcon className="mr-3 h-6 w-6" />
             Rent
           </Link>
 
           <Link
             to="/commercial-gestures"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/commercial-gestures')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/commercial-gestures')}`}
             onClick={onClose}
           >
-                <HandRaisedIcon className="mr-3 h-7 w-7" />
+                <HandRaisedIcon className="mr-3 h-6 w-6" />
             Gestes commerciaux
           </Link>
 
           <Link
             to="/revenue"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/revenue')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/revenue')}`}
             onClick={onClose}
           >
-                <ChartBarIcon className="mr-3 h-7 w-7" />
+                <ChartBarIcon className="mr-3 h-6 w-6" />
             {t('navigation.revenue')}
           </Link>
 
           <Link
             to="/hours"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/hours')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/hours')}`}
             onClick={onClose}
           >
-                <ClockIcon className="mr-3 h-7 w-7" />
+                <ClockIcon className="mr-3 h-6 w-6" />
             {t('navigation.hours')}
           </Link>
 
           <Link
             to="/crescendo"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/crescendo')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/crescendo')}`}
             onClick={onClose}
           >
-                <ShoppingCartIcon className="mr-3 h-7 w-7" />
+                <ShoppingCartIcon className="mr-3 h-6 w-6" />
             {t('navigation.crescendo')}
           </Link>
 
           <Link
             to="/productivity"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/productivity')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/productivity')}`}
             onClick={onClose}
           >
-                <ChartPieIcon className="mr-3 h-7 w-7" />
+                <ChartPieIcon className="mr-3 h-6 w-6" />
             Rentabilité
           </Link>
 
           <Link
             to="/entries"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/entries')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/entries')}`}
             onClick={onClose}
           >
-                <DocumentCheckIcon className="mr-3 h-7 w-7" />
+                <DocumentCheckIcon className="mr-3 h-6 w-6" />
             {t('navigation.entries')}
           </Link>
 
           <Link
             to="/quality"
-                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/quality')}`}
+                className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/quality')}`}
             onClick={onClose}
           >
-                <ClipboardDocumentCheckIcon className="mr-3 h-7 w-7" />
+                <ClipboardDocumentCheckIcon className="mr-3 h-6 w-6" />
             {t('navigation.quality')}
           </Link>
 
@@ -130,28 +130,28 @@ export default function MobileSidebar({ isOpen, onClose }) {
           <div className="border-t border-blue-800 pt-4 mt-4">
             <Link
               to="/tutoriels-video"
-              className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/tutoriels-video')}`}
+              className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/tutoriels-video')}`}
               onClick={onClose}
             >
-              <FilmIcon className="mr-3 h-7 w-7" />
+              <FilmIcon className="mr-3 h-6 w-6" />
               {t('navigation.tutorials')}
             </Link>
           <Link
             to="/parts"
-            className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/parts')}`}
+            className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/parts')}`}
             onClick={onClose}
           >
-            <WrenchScrewdriverIcon className="mr-3 h-7 w-7" />
+            <WrenchScrewdriverIcon className="mr-3 h-6 w-6" />
             Pièces
           </Link>
 
 
             <Link
               to="/help"
-              className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/help')}`}
+              className={`group flex items-center px-2 py-3 text-base font-medium rounded-md ${isActive('/help')}`}
               onClick={onClose}
             >
-              <QuestionMarkCircleIcon className="mr-3 h-7 w-7" />
+              <QuestionMarkCircleIcon className="mr-3 h-6 w-6" />
               {t('navigation.help')}
             </Link>
           </div>
