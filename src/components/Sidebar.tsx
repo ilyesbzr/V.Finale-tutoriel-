@@ -1,76 +1,172 @@
-import React from 'react';
+import React, { useState }  from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
-  BarChart3, 
-  Clock, 
-  ShoppingCart, 
-  TrendingUp, 
-  FileText, 
-  Target,
-  DollarSign,
-  Wrench,
-  Car,
-  HelpCircle,
-  Settings
-} from 'lucide-react';
+  ChartBarIcon,
+  ClockIcon,
+  DocumentCheckIcon,
+  ChartPieIcon,
+  ShoppingCartIcon,
+  AdjustmentsHorizontalIcon,
+  QuestionMarkCircleIcon,
+  CalendarIcon,
+  PresentationChartLineIcon,
+  ClipboardDocumentCheckIcon,
+  ChartBarSquareIcon,
+  FilmIcon,
+  CogIcon,
+  TruckIcon,
+  HandRaisedIcon,
+  BanknotesIcon,
+  UserGroupIcon,
+  WrenchScrewdriverIcon
+} from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 
-export const menuItems = [
-  { id: 'dashboard', label: 'sidebar.dashboard', icon: BarChart3 },
-  { id: 'targets', label: 'sidebar.targets', icon: Target },
-  { id: 'synthesis', label: 'sidebar.synthesis', icon: FileText },
-  { id: 'revenue', label: 'sidebar.revenue', icon: DollarSign },
-  { id: 'hours', label: 'sidebar.hours', icon: Clock },
-  { id: 'sales', label: 'sidebar.sales', icon: ShoppingCart },
-  { id: 'productivity', label: 'sidebar.productivity', icon: TrendingUp },
-  { id: 'billing', label: 'sidebar.billing', icon: FileText },
-  { id: 'quality', label: 'sidebar.quality', icon: Target },
-  { id: 'parts', label: 'sidebar.parts', icon: Wrench },
-  { id: 'rent', label: 'sidebar.rent', icon: Car },
-  { id: 'crescendo', label: 'sidebar.crescendo', icon: TrendingUp },
-  { id: 'entries', label: 'sidebar.entries', icon: ShoppingCart },
-  { id: 'gestures', label: 'sidebar.gestures', icon: Target },
-  { id: 'tutorials', label: 'sidebar.tutorials', icon: HelpCircle },
-  { id: 'help', label: 'sidebar.help', icon: HelpCircle },
-  { id: 'admin', label: 'sidebar.admin', icon: Settings },
-];
-
-interface SidebarProps {
-  currentPage: string;
-  onPageChange: (page: string) => void;
-}
-
-export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
+function Sidebar() {
+  const location = useLocation();
+  const { user } = useState();
+  const { role, loading } = useState();
   const { t } = useTranslation();
+  
+  const isActive = (path) => location.pathname === path ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-800 hover:text-white';
 
   return (
-    <div className="hidden lg:flex lg:flex-col lg:w-84 lg:fixed lg:inset-y-0 bg-gradient-to-b from-blue-800 to-slate-800 shadow-2xl">
-      <div className="flex flex-col flex-grow pt-8 pb-4 overflow-y-auto">
-        {/* Logo */}
-        <div className="flex items-center flex-shrink-0 px-6 mb-8">
-          <h1 className="text-4xl font-bold">
-            <span className="text-blue-400">Auto</span>
-            <span className="text-white">Dashboard</span>
-          </h1>
-        </div>
+    <div className="hidden md:flex md:flex-shrink-0">
+      <div className="flex flex-col w-84">
+        <div className="flex flex-col h-0 flex-1 sidebar-modern">
+          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+            <div className="flex items-center justify-center flex-shrink-0 px-4 mb-8">
+              <div className="text-center">
+                <span className="text-4xl font-bold tracking-tight">
+                  <span className="text-blue-300">Auto</span><span className="text-white">Dashboard</span>
+                </span>
+                <div className="w-16 h-1 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full mx-auto mt-2"></div>
+              </div>
+            </div>
+            <nav className="mt-5 flex-1 px-2 space-y-1">
 
-        {/* Navigation */}
-        <nav className="mt-8 flex-1 px-4 space-y-2">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onPageChange(item.id)}
-              className={`group w-full flex items-center px-4 py-3 text-xl font-medium rounded-xl transition-all duration-300 ${
-                currentPage === item.id
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform translate-x-1'
-                  : 'text-blue-100 hover:bg-blue-700/50 hover:text-white hover:transform hover:translate-x-1'
-              }`}
-            >
-              <item.icon className="h-9 w-9 mr-4" />
-              <span className="truncate">{t(item.label)}</span>
-            </button>
-          ))}
-        </nav>
+              <Link
+                to="/targets"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/targets')} ${location.pathname === '/targets' ? 'active' : ''}`}
+              >
+                <AdjustmentsHorizontalIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.targets')}
+              </Link>
+              
+                <Link
+                  to="/synthesis"
+                  className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/synthesis')} ${location.pathname === '/synthesis' ? 'active' : ''}`}
+                >
+                  <PresentationChartLineIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                  Synthèse
+                </Link>
+
+              <Link
+                to="/revenue"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/revenue')} ${location.pathname === '/revenue' ? 'active' : ''}`}
+              >
+                <ChartBarIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.revenue')}
+              </Link>
+
+              <Link
+                to="/hours"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/hours')} ${location.pathname === '/hours' ? 'active' : ''}`}
+              >
+                <ClockIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.hours')}
+              </Link>
+
+              <Link
+                to="/crescendo"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/crescendo')} ${location.pathname === '/crescendo' ? 'active' : ''}`}
+              >
+                <ShoppingCartIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.crescendo')}
+              </Link>
+
+              <Link
+                to="/productivity"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/productivity')} ${location.pathname === '/productivity' ? 'active' : ''}`}
+              >
+                <ChartPieIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                Rentabilité
+              </Link>
+
+              <Link
+                to="/entries"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/entries')} ${location.pathname === '/entries' ? 'active' : ''}`}
+              >
+                <DocumentCheckIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.entries')}
+              </Link>
+
+              <Link
+                to="/quality"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/quality')} ${location.pathname === '/quality' ? 'active' : ''}`}
+              >
+                <ClipboardDocumentCheckIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.quality')}
+              </Link>
+
+              <Link
+                to="/parts"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/parts')} ${location.pathname === '/parts' ? 'active' : ''}`}
+              >
+                <WrenchScrewdriverIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                Pièces
+              </Link>
+
+              <Link
+                to="/rent"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/rent')} ${location.pathname === '/rent' ? 'active' : ''}`}
+              >
+                <TruckIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                Rent
+              </Link>
+
+              <Link
+                to="/commercial-gestures"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/commercial-gestures')} ${location.pathname === '/commercial-gestures' ? 'active' : ''}`}
+              >
+                <HandRaisedIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                Gestes commerciaux
+              </Link>
+            </nav>
+            
+            {/* Section séparée pour Tutoriels et Aide en bas */}
+            <div className="mt-auto px-2 space-y-1 border-t border-blue-800 pt-4">
+
+              <Link
+                to="/tutoriels-video"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/tutoriels-video')} ${location.pathname === '/tutoriels-video' ? 'active' : ''}`}
+              >
+                <FilmIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.tutorials')}
+              </Link>
+
+              <Link
+                to="/help"
+                className={`sidebar-item group flex items-center px-4 py-3 text-xl font-medium ${isActive('/help')} ${location.pathname === '/help' ? 'active' : ''}`}
+              >
+                <QuestionMarkCircleIcon className="mr-4 h-9 w-9 transition-transform duration-200 group-hover:scale-110" />
+                {t('navigation.help')}
+              </Link>
+            </div>
+            
+            {/* Enhanced Footer */}
+            <div className="px-4 py-6">
+              <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-xl p-4 backdrop-blur-sm border border-white/20">
+                <div className="text-center">
+                  <div className="text-xs text-gray-300 font-medium">Version 2.1.0</div>
+                  <div className="text-xs text-gray-400 mt-1">© 2025 AutoDashboard</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}
+export default Sidebar;

@@ -1,82 +1,162 @@
 import React, { useState } from 'react';
-import { X, Menu } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  ChartBarIcon,
+  ClockIcon,
+  DocumentCheckIcon,
+  ChartPieIcon,
+  ShoppingCartIcon,
+  UserGroupIcon,
+  AdjustmentsHorizontalIcon,
+  QuestionMarkCircleIcon,
+  CalendarIcon,
+  PresentationChartLineIcon,
+  ClipboardDocumentCheckIcon,
+  BanknotesIcon,
+  ChartBarSquareIcon,
+  FilmIcon,
+  CogIcon,
+  TruckIcon,
+  HandRaisedIcon,
+  WrenchScrewdriverIcon
+} from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
-import { menuItems } from './Sidebar';
 
-interface MobileSidebarProps {
-  currentPage: string;
-  onPageChange: (page: string) => void;
-}
-
-export const MobileSidebar: React.FC<MobileSidebarProps> = ({ currentPage, onPageChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export default function MobileSidebar({ isOpen, onClose }) {
+  const location = useLocation();
+  const { user } = useState();
+  const { role, loading } = useState();
   const { t } = useTranslation();
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
+  const isActive = (path) => location.pathname === path ? 'bg-blue-900 text-white' : 'text-blue-100 hover:bg-blue-800 hover:text-white';
 
-  const handlePageChange = (page: string) => {
-    onPageChange(page);
-    setIsOpen(false);
-  };
+  if (!isOpen) return null;
 
   return (
-    <>
-      {/* Mobile menu button */}
-      <button
-        onClick={toggleSidebar}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg shadow-lg"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+    <div className="fixed inset-0 z-50 lg:hidden">
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity" onClick={onClose}></div>
 
-      {/* Mobile sidebar overlay */}
-      {isOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      {/* Mobile sidebar */}
-      <div
-        className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-blue-800 to-slate-800 transform transition-transform duration-300 ease-in-out z-50 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-blue-700">
-            <h1 className="text-2xl font-bold">
-              <span className="text-blue-400">Auto</span>
-              <span className="text-white">Dashboard</span>
-            </h1>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-2 text-white hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handlePageChange(item.id)}
-                className={`w-full flex items-center px-4 py-3 text-lg font-medium rounded-xl transition-all duration-200 ${
-                  currentPage === item.id
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform translate-x-1'
-                    : 'text-blue-100 hover:bg-blue-700/50 hover:text-white hover:transform hover:translate-x-1'
-                }`}
-              >
-                <item.icon className="h-7 w-7 mr-4" />
-                {t(item.label)}
-              </button>
-            ))}
-          </nav>
+      {/* Sidebar */}
+      <div className="relative flex flex-col w-72 max-w-xs h-full overflow-y-auto" style={{background: 'linear-gradient(180deg, #1e3a8a 0%, #1e293b 100%)'}}>
+        <div className="flex items-center justify-between p-4 border-b border-blue-800">
+          <span className="text-xl font-bold">
+            <span className="text-blue-400">Auto</span><span className="text-white">Dashboard</span>
+          </span>
+          <button
+            onClick={onClose}
+            className="text-blue-200 hover:text-white"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
         </div>
+
+        <nav className="mt-5 flex-1 px-2 space-y-1">
+
+          <Link
+            to="/rent"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/rent')}`}
+            onClick={onClose}
+          >
+                <TruckIcon className="mr-3 h-7 w-7" />
+            Rent
+          </Link>
+
+          <Link
+            to="/commercial-gestures"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/commercial-gestures')}`}
+            onClick={onClose}
+          >
+                <HandRaisedIcon className="mr-3 h-7 w-7" />
+            Gestes commerciaux
+          </Link>
+
+          <Link
+            to="/revenue"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/revenue')}`}
+            onClick={onClose}
+          >
+                <ChartBarIcon className="mr-3 h-7 w-7" />
+            {t('navigation.revenue')}
+          </Link>
+
+          <Link
+            to="/hours"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/hours')}`}
+            onClick={onClose}
+          >
+                <ClockIcon className="mr-3 h-7 w-7" />
+            {t('navigation.hours')}
+          </Link>
+
+          <Link
+            to="/crescendo"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/crescendo')}`}
+            onClick={onClose}
+          >
+                <ShoppingCartIcon className="mr-3 h-7 w-7" />
+            {t('navigation.crescendo')}
+          </Link>
+
+          <Link
+            to="/productivity"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/productivity')}`}
+            onClick={onClose}
+          >
+                <ChartPieIcon className="mr-3 h-7 w-7" />
+            Rentabilité
+          </Link>
+
+          <Link
+            to="/entries"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/entries')}`}
+            onClick={onClose}
+          >
+                <DocumentCheckIcon className="mr-3 h-7 w-7" />
+            {t('navigation.entries')}
+          </Link>
+
+          <Link
+            to="/quality"
+                className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/quality')}`}
+            onClick={onClose}
+          >
+                <ClipboardDocumentCheckIcon className="mr-3 h-7 w-7" />
+            {t('navigation.quality')}
+          </Link>
+
+          {/* Section séparée pour Tutoriels et Aide en bas */}
+          <div className="border-t border-blue-800 pt-4 mt-4">
+            <Link
+              to="/tutoriels-video"
+              className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/tutoriels-video')}`}
+              onClick={onClose}
+            >
+              <FilmIcon className="mr-3 h-7 w-7" />
+              {t('navigation.tutorials')}
+            </Link>
+          <Link
+            to="/parts"
+            className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/parts')}`}
+            onClick={onClose}
+          >
+            <WrenchScrewdriverIcon className="mr-3 h-7 w-7" />
+            Pièces
+          </Link>
+
+
+            <Link
+              to="/help"
+              className={`group flex items-center px-2 py-3 text-lg font-medium rounded-md ${isActive('/help')}`}
+              onClick={onClose}
+            >
+              <QuestionMarkCircleIcon className="mr-3 h-7 w-7" />
+              {t('navigation.help')}
+            </Link>
+          </div>
+        </nav>
       </div>
-    </>
+    </div>
   );
-};
+}
